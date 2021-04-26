@@ -1,4 +1,5 @@
 import { promises as fsp } from 'fs';
+import {logger} from './logger';
 
 export async function fileLoader(filePath: string): Promise<Buffer> {
   if (!filePath) {
@@ -9,7 +10,8 @@ export async function fileLoader(filePath: string): Promise<Buffer> {
   try {
     fileBuffer = await fsp.readFile(filePath);
   } catch (fileError) {
-    throw new Error('Cannot reach input file');
+    logger.error('Cannot reach input file');
+    logger.error(fileError);
   }
 
   return fileBuffer;
