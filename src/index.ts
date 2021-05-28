@@ -6,6 +6,7 @@ import {fileLoader} from './internal-tools/fileLoader';
 import {JSONParser} from './internal-tools/JSONParser';
 import {logger} from './internal-tools/logger';
 import {processCliArgs} from './internal-tools/parseCliArgs';
+import {renderUi} from './ui';
 
 (async () => {
   try {
@@ -20,10 +21,8 @@ import {processCliArgs} from './internal-tools/parseCliArgs';
 
     // Instantiated a new CommandRunner based on a list of commands
     const runner = new CommandRunner(commands);
-    runner.getCommandList().forEach((_, idx) => {
-      logger.info(`trying to run the command #${idx}`);
-      runner.runCommand(idx);
-    });
+
+    renderUi(runner);
   } catch (error) {
     logger.error(error);
   }
