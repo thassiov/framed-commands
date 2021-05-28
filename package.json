@@ -2,9 +2,10 @@
  "name": "tuizer",
  "version": "0.1.0",
  "description": "TUI",
- "main": "./src/index.js",
+ "main": "./src/index.ts",
  "scripts": {
   "start": "ts-node ./src/index.ts",
+  "build": "tsc",
   "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' ./src/index.ts",
   "dev:debug": "nodemon --watch 'src/**/*.ts' --exec node -r ts-node/register --inspect --inspect=0.0.0.0:9229 ./src/index.ts ",
   "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -22,50 +23,22 @@
   "@types/pino": "^6.3.6",
   "ink": "^3.0.8",
   "pino": "^6.11.1",
-  "react": "^17.0.1"
+  "react": "^17.0.2"
  },
  "devDependencies": {
+  "@babel/cli": "^7.14.3",
   "@types/jest": "25.1.4",
   "@types/node": "^14.14.31",
-  "@typescript-eslint/eslint-plugin": "^2.23.0",
-  "@typescript-eslint/parser": "^2.23.0",
+  "@typescript-eslint/eslint-plugin": "^4.25.0",
+  "@typescript-eslint/parser": "^2.34.0",
   "eslint": "^6.8.0",
-  "eslint-config-prettier": "^6.10.0",
   "eslint-plugin-import": "^2.20.1",
   "jest": "^25.1.0",
-  "nodemon": "^2.0.4",
   "prettier": "^1.19.1",
   "ts-jest": "25.2.1",
   "ts-loader": "^6.2.1",
   "ts-node": "^9.0.0",
   "tsconfig-paths": "^3.9.0",
   "typescript": "^4.1.5"
- },
- "jest": {
-  "moduleFileExtensions": [
-   "js",
-   "json",
-   "ts"
-  ],
-  "rootDir": ".",
-  "testRegex": ".spec.ts$",
-  "transform": {
-   "^.+\\.(t|j)s$": "ts-jest"
-  },
-  "coverageDirectory": "../coverage",
-  "testEnvironment": "node"
- },
- "nodemonConfig": {
-  "ignore": [
-   "**/*.test.ts",
-   "**/*.spec.ts",
-   ".git",
-   "node_modules"
-  ],
-  "watch": [
-   "src"
-  ],
-  "exec": "npm run compile",
-  "ext": "ts"
  }
 }

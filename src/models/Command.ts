@@ -3,10 +3,10 @@ import { ChildProcess, spawn } from "child_process";
 import { ICommand } from '../definitions/ICommand';
 import { ICommandDescriptor } from '../definitions/ICommandDescriptor';
 import { CommandStatus } from '../definitions/CommandStatusEnum';
-import {ICommandIO} from '../definitions/ICommandIO';
-import {HistoryEntryType, IHistoryEntry} from '../definitions/IHistoryEntry';
-import {logger} from '../internal-tools/logger';
-import {newId} from '../internal-tools/idGenerator';
+import { ICommandIO } from '../definitions/ICommandIO';
+import { HistoryEntryType, IHistoryEntry } from '../definitions/IHistoryEntry';
+import { logger } from '../internal-tools/logger';
+import { newId } from '../internal-tools/idGenerator';
 
 /**
  * The command is instantiated by providing the command's descriptor object
@@ -35,13 +35,13 @@ export class Command implements ICommand {
   private runAs: UserInfo<any>;
 
   // The command's exit code
-  private exitCode: number | undefined;
+  private exitCode: number | null;
 
   // The list of events emmited by the command's process
   private history: Array<IHistoryEntry>;
 
   // The instance of the command's process
-  private childProcess: ChildProcess;
+  private childProcess: ChildProcess | null;
 
   // The datetime when the command was run (not instantiated)
   private startDate: Date | undefined;
@@ -55,6 +55,8 @@ export class Command implements ICommand {
     this.runAs = userInfo();
     this.status = CommandStatus.NOT_STARTED;
     this.history = [];
+    this.childProcess = null;
+    this.exitCode = null;
   }
 
   /**
@@ -95,7 +97,7 @@ export class Command implements ICommand {
    */
   public stop(): void {
     logger.debug(`Stopping command ${this.nameAlias}`);
-    this.childProcess.kill('SIGTERM');
+    this.childProcess?.kill('SIGTERM');
   }
 
   /**
@@ -105,7 +107,7 @@ export class Command implements ICommand {
    */
   public kill(): void {
     logger.debug(`Killing command ${this.nameAlias}`);
-    this.childProcess.kill('SIGKILL');
+    this.childProcess?.kill('SIGKILL');
   }
 
   /**
@@ -139,9 +141,9 @@ export class Command implements ICommand {
   /**
    * Returns the process exit code
    *
-   * @returns the exit code's number or undefined, if not present
+   * @returns the exit code's number or null, if not present
    */
-  public getExitCode(): number | undefined {
+  public getExitCode(): number | null {
     return this.exitCode;
   }
 
@@ -187,7 +189,7 @@ export class Command implements ICommand {
    * @returns any
    */
   public onEvent(event: string, listener: () => void): any {
-    return this.childProcess.addListener(event, listener);
+    return this.childProcess?.addListener(event, listener);
   }
 
   /**
@@ -205,7 +207,7 @@ export class Command implements ICommand {
    * @returns void
    */
   private eventsListener(): void {
-    this.childProcess.on('exit', (code, signal) => {
+    this.childProcess?.on('exit', (code, signal) => {
       switch (signal) {
         case 'SIGKILL':
           this.status = CommandStatus.KILLED;
@@ -222,7 +224,7 @@ export class Command implements ICommand {
       logger.debug(`Command ${this.nameAlias} is exiting ${signal ? 'by signal' + signal : '' } with code ${code}`);
     });
 
-    this.childProcess.on('error', (err) => {
+    this.childProcess?.on('error', (err) => {
       this.status = CommandStatus.STOPPED;
       // @TODO figure out about this error !== number thing
       // this.exitCode = code;
@@ -236,7 +238,7 @@ export class Command implements ICommand {
    * @returns void
    */
   private registerIoEvent(): void {
-    this.childProcess.stdout.on('data', (data) => {
+    this.childProcess?.stdout?.on('data', (data) => {
       this.history.push({
         data: data.toString(),
         date: new Date(),
@@ -244,7 +246,7 @@ export class Command implements ICommand {
       });
     });
 
-    this.childProcess.stderr.on('data', (data) => {
+    this.childProcess?.stderr?.on('data', (data) => {
       this.history.push({
         data: data.toString(),
         date: new Date(),

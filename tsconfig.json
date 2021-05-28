@@ -1,27 +1,33 @@
 {
-    "compilerOptions": {
-        "target": "ESNext",
-        "module": "CommonJS",
-        "allowJs": false,
-        "checkJs": false,
-        "skipLibCheck": true,
-        "declaration": true,
-        "declarationMap": true,
-        "sourceMap": true,
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "removeComments": true,
-        "noImplicitAny": true,
-        "noUnusedLocals": true,
-        "moduleResolution": "node",
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
-    },
-    "exclude": [
-        "node_modules",
-        "./tests",
-        "assets",
-        "dist"
-    ]
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "jsx": "react",
+    "module": "commonjs",
+    "outDir": "dist",
+    "target": "es6",
+    "rootDir": "src",
+		"lib": [
+			"ES2019",
+			"ES2020.String",
+			"DOM"
+		],
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": false,
+		"declaration": true,
+		"pretty": true,
+		"newLine": "lf",
+		"stripInternal": true,
+		"strict": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noEmitOnError": true,
+		"useDefineForClassFields": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true
+  },
+  "include": ["./src"]
 }

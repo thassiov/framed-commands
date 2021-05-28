@@ -13,7 +13,7 @@ import {processCliArgs} from './internal-tools/parseCliArgs';
     const args = processCliArgs(process.argv);
 
     // loads the file based on the cwd (why cwd?)
-    const file = await fileLoader(resolve(process.cwd(), args[0]));
+    const file = await fileLoader(resolve(process.cwd(), args[0] || ''));
 
     // gets the 'commands' prop (an array) from the config file
     const { commands } = JSONParser(file.toString()) as IJSONConfigFile;

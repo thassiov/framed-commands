@@ -11,7 +11,7 @@ export async function fileLoader(filePath: string): Promise<Buffer> {
     fileBuffer = await fsp.readFile(filePath);
   } catch (fileError) {
     logger.error('Cannot reach input file');
-    logger.error(fileError);
+    throw fileError;
   }
 
   return fileBuffer;

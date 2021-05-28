@@ -1,7 +1,7 @@
-import {Stream} from "stream";
+import {Readable, Writable} from "stream";
 
 export interface ICommandIO {
-  stdin: Stream;
-  stdout: Stream;
-  stderr: Stream;
+  stdin: Writable | null;
+  stdout: Readable | null;
+  stderr: Readable | null;
 }

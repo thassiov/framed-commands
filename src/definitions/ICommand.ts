@@ -9,7 +9,7 @@ export interface ICommand {
   isRunning(): boolean;
   getStatus(): CommandStatus;
   getPid(): number | undefined;
-  getExitCode(): number | undefined;
+  getExitCode(): number | null;
   getStartDate(): Date | undefined;
   getDescription(): string;
   getNameAlias(): string;

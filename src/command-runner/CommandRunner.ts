@@ -40,13 +40,17 @@ export default class CommandRunner {
   public runCommand(id: number): void {
     const command = this.commands[id];
 
+    if(!command) {
+      throw new Error(`Command id ${id} does not exists`);
+    }
+
     const io = command.run();
 
-    io.stdout.on('data', (data: Buffer) => {
+    io.stdout?.on('data', (data: Buffer) => {
       logger.info(data.toString());
     });
 
-    io.stderr.on('data', (err: Error) => {
+    io.stderr?.on('data', (err: Error) => {
       logger.error(err.toString());
     });
 
