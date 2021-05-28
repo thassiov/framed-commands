@@ -4,15 +4,12 @@
  "description": "TUI",
  "main": "./src/index.ts",
  "scripts": {
-  "start": "ts-node ./src/index.ts",
   "build": "tsc",
-  "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' ./src/index.ts",
-  "dev:debug": "nodemon --watch 'src/**/*.ts' --exec node -r ts-node/register --inspect --inspect=0.0.0.0:9229 ./src/index.ts ",
-  "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+  "dev": "nodemon",
+  "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
+  "start": "ts-node ./src/index.ts",
   "test": "jest",
-  "test:watch": "jest --watch",
-  "test:cov": "jest --coverage",
-  "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+  "test:watch": "jest --watch"
  },
  "author": {
   "name": "Thassio Victor",
@@ -33,12 +30,58 @@
   "@typescript-eslint/parser": "^4.25.0",
   "eslint": "^6.8.0",
   "eslint-plugin-react": "^7.23.2",
-  "jest": "^25.1.0",
+  "jest": "^25.5.4",
+  "nodemon": "^2.0.7",
   "prettier": "^1.19.1",
-  "ts-jest": "25.2.1",
+  "ts-jest": "^25.2.1",
   "ts-loader": "^6.2.1",
   "ts-node": "^9.0.0",
   "tsconfig-paths": "^3.9.0",
   "typescript": "^4.1.5"
+ },
+ "jest": {
+   "roots": [
+     "<rootDir>/src"
+   ],
+   "testMatch": [
+     "**/__tests__/**/*.+(ts|tsx|js)",
+     "**/?(*.)+(spec|test).+(ts|tsx|js)"
+   ],
+   "transform": {
+     "^.+\\.(ts|tsx)$": "ts-jest"
+   }
+ },
+ "nodemonConfig": {
+   "ignore": ["**/*.test.ts", "**/*.spec.ts", "node_modules"],
+   "watch": ["src"],
+   "exec": "npm start",
+   "ext": "ts,tsx"
+ },
+ "eslintConfig": {
+   "root": true,
+   "parser": "@typescript-eslint/parser",
+   "parserOptions": {
+     "project": "./tsconfig.json",
+     "sourceType": "module",
+     "ecmaFeatures": {
+       "jsx": true
+     }
+   },
+   "plugins": [
+     "@typescript-eslint",
+     "react"
+   ],
+   "extends": [
+     "eslint:recommended",
+     "plugin:@typescript-eslint/eslint-recommended",
+     "plugin:@typescript-eslint/recommended",
+     "plugin:react/recommended",
+     "airbnb"
+   ],
+   "rules": {
+     "react/jsx-filename-extension": [
+       1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
+     ]
+   }
  }
 }
