@@ -1,87 +1,97 @@
 {
- "name": "tuizer",
- "version": "0.1.0",
- "description": "TUI",
- "main": "./src/index.ts",
- "scripts": {
-  "build": "tsc",
-  "dev": "nodemon",
-  "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
-  "start": "ts-node ./src/index.ts",
-  "test": "jest",
-  "test:watch": "jest --watch"
- },
- "author": {
-  "name": "Thassio Victor",
-  "email": "tvmcarvalho@gmail.com"
- },
- "license": "MIT",
- "dependencies": {
-  "@types/pino": "^6.3.6",
-  "ink": "^3.0.8",
-  "pino": "^6.11.1",
-  "react": "^17.0.2"
- },
- "devDependencies": {
-  "@types/jest": "25.1.4",
-  "@types/node": "^14.14.31",
-  "@types/react": "^17.0.8",
-  "@typescript-eslint/eslint-plugin": "^4.25.0",
-  "@typescript-eslint/parser": "^4.25.0",
-  "eslint": "^6.8.0",
-  "eslint-plugin-react": "^7.23.2",
-  "jest": "^25.5.4",
-  "nodemon": "^2.0.7",
-  "prettier": "^1.19.1",
-  "ts-jest": "^25.2.1",
-  "ts-loader": "^6.2.1",
-  "ts-node": "^9.0.0",
-  "tsconfig-paths": "^3.9.0",
-  "typescript": "^4.1.5"
- },
- "jest": {
-   "roots": [
-     "<rootDir>/src"
-   ],
-   "testMatch": [
-     "**/__tests__/**/*.+(ts|tsx|js)",
-     "**/?(*.)+(spec|test).+(ts|tsx|js)"
-   ],
-   "transform": {
-     "^.+\\.(ts|tsx)$": "ts-jest"
-   }
- },
- "nodemonConfig": {
-   "ignore": ["**/*.test.ts", "**/*.spec.ts", "node_modules"],
-   "watch": ["src"],
-   "exec": "npm start",
-   "ext": "ts,tsx"
- },
- "eslintConfig": {
-   "root": true,
-   "parser": "@typescript-eslint/parser",
-   "parserOptions": {
-     "project": "./tsconfig.json",
-     "sourceType": "module",
-     "ecmaFeatures": {
-       "jsx": true
-     }
-   },
-   "plugins": [
-     "@typescript-eslint",
-     "react"
-   ],
-   "extends": [
-     "eslint:recommended",
-     "plugin:@typescript-eslint/eslint-recommended",
-     "plugin:@typescript-eslint/recommended",
-     "plugin:react/recommended",
-     "airbnb"
-   ],
-   "rules": {
-     "react/jsx-filename-extension": [
-       1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
-     ]
-   }
- }
+  "name": "tuizer",
+  "version": "0.1.0",
+  "description": "TUI",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "start": "ts-node ./src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "author": {
+    "name": "Thassio Victor",
+    "email": "tvmcarvalho@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ink": "^3.0.8",
+    "ink-tab": "^4.1.0",
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "25.1.4",
+    "@types/node": "^14.14.31",
+    "@types/react": "^17.0.8",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.23.2",
+    "jest": "^25.5.4",
+    "nodemon": "^2.0.7",
+    "ts-jest": "^25.2.1",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.1.5"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.+(ts|tsx|js)",
+      "**/?(*.)+(spec|test).+(ts|tsx|js)"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    }
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm start",
+    "ext": "ts,tsx"
+  },
+  "eslintConfig": {
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "project": "./tsconfig.json",
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "jsx": true
+      }
+    },
+    "plugins": [
+      "@typescript-eslint",
+      "react"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:react/recommended",
+      "airbnb"
+    ],
+    "rules": {
+      "react/jsx-filename-extension": [
+        1,
+        {
+          "extensions": [
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx"
+          ]
+        }
+      ]
+    }
+  }
 }
