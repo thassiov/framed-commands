@@ -1,4 +1,5 @@
 {
+  "name":"Meg's commands",
   "commands": [
     {
       "command": "ls",

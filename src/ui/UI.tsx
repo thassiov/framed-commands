@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { useInput, Box, useApp } from 'ink';
+import { useInput, Box, useApp, Text } from 'ink';
 import  useStdoutDimensions  from 'ink-use-stdout-dimensions';
 
 import {Readable} from 'stream';
@@ -16,11 +16,28 @@ interface IOutput {
 
 type OINULL = IOutput & null;
 
-type UIProps = {
-  commandRunner: CommandRunner;
+type UIHeaderProps = {
+  name: string;
 };
 
-const UI: FC<UIProps> = ({ commandRunner }: UIProps) => {
+type UIProps = {
+  commandRunner: CommandRunner;
+} & UIHeaderProps;
+
+const UIHeader: FC<UIHeaderProps> = ({ name }: UIHeaderProps) => {
+  return (
+    <Box
+    width={'100%'}
+    justifyContent={'center'}
+    borderColor={'red'}
+    borderStyle={'bold'}
+    >
+      <Text bold>{ name }</Text>
+    </Box>
+  );
+}
+
+const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
   const { exit } = useApp();
   const [highlighted, setHighlighted] = useState(commandRunner.getCommandList()[0] as ICommandDescriptor);
   const [selectedIo, setSelectedIo] = useState(null as OINULL);
@@ -44,20 +61,23 @@ const UI: FC<UIProps> = ({ commandRunner }: UIProps) => {
 
 	return (
     <Box
-    height={(rows * 0.10).toString()}
-    width={columns}
-    borderStyle={'round'}
-    borderColor={'greenBright'}
-    >
-      <MenuList
-        commandDescriptors={commandRunner.getCommandList()}
-        handleSelect={handleSelect}
-        handleHightlight={handleHightlight}
-      />
-      <PresentationPane
-        commandDescriptor={highlighted}
-        io={selectedIo}
+      height={(rows * 0.10).toString()}
+      width={columns}
+      borderStyle={'round'}
+      borderColor={'greenBright'}
+      flexDirection={'column'}>
+      { name && <UIHeader name={name} /> }
+      <Box>
+        <MenuList
+          commandDescriptors={commandRunner.getCommandList()}
+          handleSelect={handleSelect}
+          handleHightlight={handleHightlight}
         />
+        <PresentationPane
+          commandDescriptor={highlighted}
+          io={selectedIo}
+        />
+      </Box>
     </Box>
   );
 }

@@ -17,12 +17,12 @@ import {renderUi} from './ui';
     const file = await fileLoader(resolve(process.cwd(), args[0] || ''));
 
     // gets the 'commands' prop (an array) from the config file
-    const { commands } = JSONParser(file.toString()) as IJSONConfigFile;
+    const { commands, name = '' } = JSONParser(file.toString()) as IJSONConfigFile;
 
     // Instantiated a new CommandRunner based on a list of commands
     const runner = new CommandRunner(commands);
 
-    renderUi(runner);
+    renderUi(runner, name);
   } catch (error) {
     logger.error(error);
   }
