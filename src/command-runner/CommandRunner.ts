@@ -81,11 +81,10 @@ export default class CommandRunner {
    * Lists all the commands registered in the CommandRunner.
    * The list is composed by the command's alias and description
    *
-   * @returns An array of objects with properties `nameAlias:string` and `description:string`
+   * @returns An array of command descriptors
    */
-  public getCommandList(): Array<{nameAlias: string, description: string}>{
-    return this.commandDescriptors
-    .map(command => ({nameAlias: command.nameAlias, description: command.description}));
+  public getCommandList(): Array<ICommandDescriptor>{
+    return this.commandDescriptors;
   }
 
   /**

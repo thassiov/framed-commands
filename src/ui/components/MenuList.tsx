@@ -1,22 +1,17 @@
 import React, { FC } from 'react';
 import SelectInput from 'ink-select-input';
 
-import CommandRunner from '../../command-runner';
 import {Item} from 'ink-select-input/build/SelectInput';
 import {Box} from 'ink';
+import {ICommandDescriptor} from '../../definitions/ICommandDescriptor';
 
-interface ICommandListItem {
-  nameAlias: string;
-  description: string;
-}
-
-interface IUIProps {
-  commandRunner: CommandRunner;
+type MenuListProps = {
   handleSelect: (commandId: number) => void;
   handleHightlight: (commandId: number) => void;
-}
+  commandDescriptors: Array<ICommandDescriptor>;
+};
 
-const MenuList: FC<IUIProps> = ({ commandRunner, handleSelect, handleHightlight }: IUIProps) => {
+const MenuList: FC<MenuListProps> = ({ commandDescriptors, handleSelect, handleHightlight }: MenuListProps) => {
   const onInputSelected = (item: Item<number>) => {
     handleSelect(item.value);
   }
@@ -25,9 +20,9 @@ const MenuList: FC<IUIProps> = ({ commandRunner, handleSelect, handleHightlight 
     handleHightlight(item.value);
   }
 
-  const getItensForSelectInput = (commands: Array<ICommandListItem>) => {
-    return commands
-     .map((item: ICommandListItem, idx: number) => ({
+  const getItensForSelectInput = (commandDescriptors: Array<ICommandDescriptor>) => {
+    return commandDescriptors
+     .map((item: ICommandDescriptor, idx: number) => ({
          label: item.nameAlias,
          value: idx,
        })
@@ -35,9 +30,12 @@ const MenuList: FC<IUIProps> = ({ commandRunner, handleSelect, handleHightlight 
   }
 
  return (
-   <Box width={'15%'} flexDirection="column" alignSelf='flex-end'>
+   <Box
+   width={'20%'}
+   flexDirection="column"
+   alignSelf='flex-end'>
      <SelectInput
-       items={getItensForSelectInput(commandRunner.getCommandList())}
+       items={getItensForSelectInput(commandDescriptors)}
        onSelect={onInputSelected}
        onHighlight={onInputHighlighted}
        />

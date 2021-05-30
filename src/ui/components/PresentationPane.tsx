@@ -1,11 +1,7 @@
-import React, { FC, useEffect, useState } from "react";
-import { Box, Text } from 'ink';
+import React, { FC, useEffect } from "react";
+import { Box, Text, useStderr, useStdout } from 'ink';
 import {Readable} from "stream";
-
-interface ICommandListItem {
-  nameAlias: string;
-  description: string;
-}
+import {ICommandDescriptor} from "../../definitions/ICommandDescriptor";
 
 interface IOutput {
   io: {
@@ -14,39 +10,45 @@ interface IOutput {
   }
 }
 
-const Header: FC<ICommandListItem> = ({ nameAlias, description }: ICommandListItem) => {
+type PresentationPaneProps = {
+  commandDescriptor: ICommandDescriptor;
+} & IOutput;
+
+type HeaderProps = {
+  commandDescriptor: ICommandDescriptor;
+};
+
+const Header: FC<HeaderProps> = ({ commandDescriptor }: HeaderProps) => {
+  const { description, command, parameters } = commandDescriptor;
   return (
-    <Box width={'100%'} height={4} flexDirection="row" borderStyle={'single'}>
+    <Box
+    width={'100%'}
+    height={4}
+    flexDirection="column">
       <Box width={'100%'}>
-        <Text bold>{nameAlias}</Text>
+        <Text>Description: { description }</Text>
       </Box>
       <Box width={'100%'}>
-        <Text>{description}</Text>
+        <Text>Full command: { command } { parameters.length ? parameters.join((' ')) : '' }</Text>
       </Box>
     </Box>
   );
 }
 
-const Output: FC<IOutput> = ({ io }: IOutput) => {
-  const [message, setMessage] = useState('');
+const PresentationPane: FC<PresentationPaneProps> = ({ commandDescriptor, io }: PresentationPaneProps) => {
+  const { write: writeStdout} = useStdout();
+  const { write: writeStderr} = useStderr();
 
   useEffect(() => {
-    io?.stdout?.on('data', (chunk) => setMessage(message + chunk.toString()));
-    io?.stderr?.on('data', (chunk) => setMessage(message + chunk.toString()));
+    io?.stdout?.on('data', (chunk) => writeStdout(chunk.toString()));
+    io?.stderr?.on('data', (chunk) => writeStderr(chunk.toString()));
   });
 
   return (
-    <Box height={'100%'}>
-      <Text>{message}</Text>
-    </Box>
-  );
-}
-
-const PresentationPane: FC<ICommandListItem & IOutput> = ({ nameAlias, description, io }: ICommandListItem & IOutput) => {
-  return (
-    <Box width={'85%'} borderStyle={'bold'} flexDirection="column">
-      <Output io={io} />
-      <Header nameAlias={nameAlias} description={description} />
+    <Box
+    flexDirection="row"
+    alignSelf='flex-end'>
+      <Header commandDescriptor={commandDescriptor} />
     </Box>
   );
 }

@@ -1,58 +1,61 @@
-import { useInput, Box } from 'ink';
-import { exit } from 'process';
 import React, { FC, useState } from 'react';
+import { useInput, Box, useApp } from 'ink';
+import  useStdoutDimensions  from 'ink-use-stdout-dimensions';
+
 import {Readable} from 'stream';
+
 import CommandRunner from '../command-runner';
 import MenuList from './components/MenuList';
 import PresentationPane from './components/PresentationPane';
-
-type IUIProps = {
-  commandRunner: CommandRunner;
-}
-
-interface ICommandListItem {
-  nameAlias: string;
-  description: string;
-}
+import {ICommandDescriptor} from '../definitions/ICommandDescriptor';
 
 interface IOutput {
   stdout: Readable;
   stderr: Readable;
 }
 
-type ionull = IOutput & null;
+type OINULL = IOutput & null;
 
-const UI: FC<IUIProps> = ({ commandRunner }: IUIProps) => {
+type UIProps = {
+  commandRunner: CommandRunner;
+};
+
+const UI: FC<UIProps> = ({ commandRunner }: UIProps) => {
+  const { exit } = useApp();
+  const [highlighted, setHighlighted] = useState(commandRunner.getCommandList()[0] as ICommandDescriptor);
+  const [selectedIo, setSelectedIo] = useState(null as OINULL);
+  const [columns, rows] = useStdoutDimensions();
+
   useInput((input) => {
     if (input === 'q') {
-      exit(0);
+      exit();
     }
   });
 
-  const [highlighted, setHighlighted] = useState(commandRunner.getCommandList()[0] as ICommandListItem);
-  const [selectedIo, setSelectedIo] = useState(null as ionull);
-
   const handleSelect = (commandId: number) => {
-    console.log(commandId);
     const io = commandRunner.runCommand(commandId);
-    setSelectedIo(io as ionull);
+    setSelectedIo(io as OINULL);
   }
 
   const handleHightlight = (commandId: number) => {
     const command = commandRunner.getCommandList()[commandId];
-    setHighlighted(command as ICommandListItem);
+    setHighlighted(command as ICommandDescriptor);
   }
 
 	return (
-    <Box height={'100%'}>
+    <Box
+    height={(rows * 0.10).toString()}
+    width={columns}
+    borderStyle={'round'}
+    borderColor={'greenBright'}
+    >
       <MenuList
-        commandRunner={commandRunner}
+        commandDescriptors={commandRunner.getCommandList()}
         handleSelect={handleSelect}
         handleHightlight={handleHightlight}
       />
       <PresentationPane
-        nameAlias={highlighted.nameAlias}
-        description={highlighted.description}
+        commandDescriptor={highlighted}
         io={selectedIo}
         />
     </Box>
