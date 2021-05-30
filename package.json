@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon",
+    "dev:stdin": "nodemon -I",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
     "start": "ts-node ./src/index.ts",
     "test": "jest",

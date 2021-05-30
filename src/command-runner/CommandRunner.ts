@@ -1,7 +1,13 @@
+import {Readable} from 'stream';
 import {ICommand} from '../definitions/ICommand';
 import {ICommandDescriptor} from '../definitions/ICommandDescriptor';
-import {logger} from '../internal-tools/logger';
+// import {logger} from '../internal-tools/logger';
 import { Command } from '../models';
+
+interface IOutput {
+  stdout: Readable;
+  stderr: Readable;
+}
 
 /**
  * Generates a list of `Command`s based on commands descriptors received as
@@ -37,7 +43,7 @@ export default class CommandRunner {
    * @param id - The index of the given command
    * @returns Promise<void>
    */
-  public runCommand(id: number): void {
+  public runCommand(id: number): IOutput {
     const command = this.commands[id];
 
     if(!command) {
@@ -46,24 +52,29 @@ export default class CommandRunner {
 
     const io = command.run();
 
-    io.stdout?.on('data', (data: Buffer) => {
-      logger.info(data.toString());
-    });
+    // io.stdout?.on('data', (data: Buffer) => {
+    //   logger.info(data.toString());
+    // });
+    //
+    // io.stderr?.on('data', (err: Error) => {
+    //   logger.error(err.toString());
+    // });
+    //
+    // command.onEvent('exit', () => {
+    //   logger.info(command.getPid());
+    //   logger.info(command.getStatus());
+    //   logger.info(command.getExitCode());
+    //   logger.info(command.getNameAlias());
+    //   logger.info(command.getDescription());
+    //   logger.info(command.getStartDate());
+    //   logger.info(command.getCommandString());
+    //   logger.info(command.getHistoryDump());
+    // });
 
-    io.stderr?.on('data', (err: Error) => {
-      logger.error(err.toString());
-    });
-
-    command.onEvent('exit', () => {
-      logger.info(command.getPid());
-      logger.info(command.getStatus());
-      logger.info(command.getExitCode());
-      logger.info(command.getNameAlias());
-      logger.info(command.getDescription());
-      logger.info(command.getStartDate());
-      logger.info(command.getCommandString());
-      logger.info(command.getHistoryDump());
-    });
+    return {
+      stdout: io.stdout as Readable,
+      stderr: io.stderr as Readable,
+    };
   }
 
   /**
