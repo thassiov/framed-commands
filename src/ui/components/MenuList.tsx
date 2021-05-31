@@ -35,6 +35,7 @@ const MenuList: FC<MenuListProps> = ({ commandDescriptors, handleSelect, handleH
    flexDirection="column"
    alignSelf='flex-end'>
      <SelectInput
+       limit={8}
        items={getItensForSelectInput(commandDescriptors)}
        onSelect={onInputSelected}
        onHighlight={onInputHighlighted}
