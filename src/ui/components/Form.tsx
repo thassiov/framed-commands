@@ -15,7 +15,7 @@ type FormProps = {
 };
 
 interface FormResponse {
-  [name: number]: string;
+  [name: string]: string;
 }
 
 const Form: FC<FormProps> = ({ parameters, handleAnswer }: FormProps) => {
@@ -47,12 +47,7 @@ const Form: FC<FormProps> = ({ parameters, handleAnswer }: FormProps) => {
 
   // @ts-ignore
   const handleChange = (data) => {
-    const key = Object.keys(data)[0] as string;
-
-    setFormResponse({
-      ...formResponse,
-      [parseInt(key)]: data[key]
-    })
+    setFormResponse(data as FormResponse);
   }
 
   // @ts-ignore
@@ -60,7 +55,9 @@ const Form: FC<FormProps> = ({ parameters, handleAnswer }: FormProps) => {
     parameters.forEach((parameter) => {
       const index = parameter.index;
       const answerIndex = parameters.findIndex(p => p.index == index);
-      ((parameters[answerIndex] as IFormInput).value as InputParameter).answer = formResponse[index];
+      const defaultValue = parameter.value.defaultValue as string;
+
+      ((parameters[answerIndex] as IFormInput).value as InputParameter).answer = formResponse[index] as string || defaultValue;
     });
 
     handleAnswer(parameters);

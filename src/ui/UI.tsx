@@ -97,7 +97,6 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
     } else {
       runCommand(commandId);
     }
-    setCurrentNamealias((commandRunner.getCommandList()[commandId] as ICommandDescriptor).nameAlias)
   }
 
   const handleAnswer = (answers: Array<IFormInput>) => {
@@ -111,6 +110,7 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
   }
 
   const runCommand = (commandId: number) => {
+    setCurrentNamealias((commandRunner.getCommandList()[commandId] as ICommandDescriptor).nameAlias)
     const io = commandRunner.runCommand(commandId);
     setSelectedIo(io as OINULL);
     commandRunner.listenToCommandEvent(commandId, 'exit', handleCommandFinishedRunning);
