@@ -65,11 +65,9 @@ export class Command implements ICommand {
    * @return an object containing the process's stdin, stdout and stderr streams
    */
   public run(): ICommandIO {
-    logger.debug(`Running command ${this.nameAlias}`);
-
     const resolvedParameters = this.resolveCommandParameters(this.parameters);
 
-    logger.debug(`command string: ${ this.command }${ resolvedParameters.join(' ') }`);
+    logger.debug(`Launching command: ${ this.command } ${ resolvedParameters.join(' ') }`);
 
     this.childProcess = spawn(this.command, resolvedParameters, {
       cwd: process.cwd(),
@@ -252,7 +250,14 @@ export class Command implements ICommand {
         return param;
       }
 
-      return param.parameter.replace('$', param.answer as string);
+      // gets the first '$' that is not escaped
+      const replaceRule = new RegExp(/(?<!\\)\$/);
+
+      if (param.parameter.match(replaceRule)) {
+        return param.parameter.replace(replaceRule, param.answer as string);
+      }
+
+      return param.answer as string;
     });
   }
 

@@ -8,6 +8,20 @@
       "nameAlias": "extended list, including hidden"
     },
     {
+      "command": "find ",
+      "parameters": [
+        ".",
+        "-type f",
+        {
+          "type":"string",
+          "required":true,
+          "parameter":"-name \"$\"",
+          "question":"whatzaaaaaaaaaa"
+      }],
+      "description": "finds all files in the current directory that matches the query string",
+      "nameAlias": "find files by name"
+    },
+    {
       "command": "cat",
       "parameters": ["/etc/hostname"],
       "description": "displat the contents of the /etc/hosts file",
