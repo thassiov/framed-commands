@@ -4,7 +4,7 @@
   "description": "Make a TUI app using a json file",
   "main": "./src/index.ts",
   "bin": {
-    "tuizer":"./dist/index.js"
+    "tuizer": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -22,6 +22,7 @@
   "license": "MIT",
   "dependencies": {
     "ink": "^3.0.8",
+    "ink-form": "^1.0.1",
     "ink-select-input": "^4.2.0",
     "ink-use-stdout-dimensions": "^1.0.5",
     "react": "^17.0.2"

@@ -1,7 +1,7 @@
 import { UserInfo, userInfo } from 'os';
 import { ChildProcess, spawn } from "child_process";
 import { ICommand } from '../definitions/ICommand';
-import { ICommandDescriptor } from '../definitions/ICommandDescriptor';
+import { CommandParameter, ICommandDescriptor } from '../definitions/ICommandDescriptor';
 import { CommandStatus } from '../definitions/CommandStatusEnum';
 import { ICommandIO } from '../definitions/ICommandIO';
 import { HistoryEntryType, IHistoryEntry } from '../definitions/IHistoryEntry';
@@ -17,7 +17,7 @@ export class Command implements ICommand {
   private command: string;
 
   // The parameters given to the command
-  private parameters: Array<string>;
+  private parameters: Array<CommandParameter>;
 
   // The command's description
   private description: string;
@@ -66,7 +66,13 @@ export class Command implements ICommand {
    */
   public run(): ICommandIO {
     logger.debug(`Running command ${this.nameAlias}`);
-    this.childProcess = spawn(this.command, this.parameters, {
+
+    const resolvedParameters = this.resolveCommandParameters(this.parameters);
+
+    logger.debug(`command string: ${ this.command }${ resolvedParameters.join(' ') }`);
+
+    this.childProcess = spawn(this.command, resolvedParameters, {
+      cwd: process.cwd(),
       uid: this.runAs.uid,
       gid: this.runAs.gid,
       stdio:[
@@ -129,6 +135,28 @@ export class Command implements ICommand {
   }
 
   /**
+   * Returns the command's parameters
+   *
+   * @returns Array<CommandParameter>
+   */
+  public getParameters(): Array<CommandParameter> {
+    return this.parameters;
+  }
+
+  /**
+   * Set the command's parameters
+   *
+   * This is used when the user answers parameters questions
+   * All the parameters are reset in the prop
+   *
+   * @param parameters - Array<CommandParameter>
+   * @returns void
+   */
+  public setParameters(parameters: Array<CommandParameter>): void {
+    this.parameters = parameters;
+  }
+
+  /**
    * Returns the PID of the process
    *
    * @returns a number representing the PID or undefined if the process
@@ -136,6 +164,15 @@ export class Command implements ICommand {
    */
   public getPid(): number | undefined {
     return this.pid;
+  }
+
+  /**
+   * Returns the user running the command's process
+   *
+   * @returns UserInfo object
+   */
+  public getRunAs(): UserInfo<any> {
+    return this.runAs;
   }
 
   /**
@@ -199,6 +236,24 @@ export class Command implements ICommand {
    */
   public getHistoryDump(): Array<IHistoryEntry> {
     return this.history;
+  }
+
+  /**
+   * Makes sure the command receives the parameters that need user input
+   *
+   * In the list of parameters, there may be some 'input objects' among the strings
+   * This method makes sure those are 'resolved'
+   *
+   * @returns Array<string>
+   */
+  private resolveCommandParameters(params: Array<CommandParameter>): Array<string> {
+    return params.map((param) => {
+      if (typeof param == 'string' ) {
+        return param;
+      }
+
+      return param.parameter.replace('$', param.answer as string);
+    });
   }
 
   /**

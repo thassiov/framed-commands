@@ -24,6 +24,7 @@ import {renderUi} from './ui';
     // Instantiated a new CommandRunner based on a list of commands
     const runner = new CommandRunner(commands);
 
+    // start the frontend
     renderUi(runner, name);
   } catch (error) {
     logger.error(error);

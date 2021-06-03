@@ -1,7 +1,6 @@
-import {Readable} from 'stream';
-import {ICommand} from '../definitions/ICommand';
-import {ICommandDescriptor} from '../definitions/ICommandDescriptor';
-// import {logger} from '../internal-tools/logger';
+import { Readable } from 'stream';
+import { ICommand } from '../definitions/ICommand';
+import { CommandParameter, ICommandDescriptor } from '../definitions/ICommandDescriptor';
 import { Command } from '../models';
 
 interface IOutput {
@@ -52,25 +51,6 @@ export default class CommandRunner {
 
     const io = command.run();
 
-    // io.stdout?.on('data', (data: Buffer) => {
-    //   logger.info(data.toString());
-    // });
-    //
-    // io.stderr?.on('data', (err: Error) => {
-    //   logger.error(err.toString());
-    // });
-    //
-    // command.onEvent('exit', () => {
-    //   logger.info(command.getPid());
-    //   logger.info(command.getStatus());
-    //   logger.info(command.getExitCode());
-    //   logger.info(command.getNameAlias());
-    //   logger.info(command.getDescription());
-    //   logger.info(command.getStartDate());
-    //   logger.info(command.getCommandString());
-    //   logger.info(command.getHistoryDump());
-    // });
-
     return {
       stdout: io.stdout as Readable,
       stderr: io.stderr as Readable,
@@ -94,5 +74,34 @@ export default class CommandRunner {
    */
   public getCommandCount(): number {
     return this.commandDescriptors.length;
+  }
+
+  /**
+   * Returns the parameters from a given command
+   *
+   * @returns The command's parameters (Array<CommandParameter>)
+   */
+  public getParametersFromCommand(commandId: number): Array<CommandParameter> {
+    if(!this.commands[commandId]) {
+      throw new Error('Command does not exist');
+    }
+
+    return (this.commands[commandId] as ICommand).getParameters();
+  }
+
+  /**
+   * Sets' new parameters in a given command
+   *
+   * @param commandId number
+   * @param parameters Array<CommandParameter>
+   *
+   * @returns void
+   */
+  public setParametersFromCommand(commandId: number, parameters: Array<CommandParameter>): void {
+    if(!this.commands[commandId]) {
+      throw new Error('Command does not exist');
+    }
+
+    (this.commands[commandId] as ICommand).setParameters(parameters);
   }
 }
