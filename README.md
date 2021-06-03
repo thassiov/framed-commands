@@ -16,11 +16,13 @@ npm install -g tuizer
 
 From a json file, it creates a menu where you can execute commands. A small description of the command is also shown, if provided.
 
-## Why (you don't need to read this, but it was the motivation)
+<details><summary>Why (the motivation behind it)</summary>
 
 I don't remember all the possible commands from an application and I didn't wanted to keep trying to dig through documentation to find the correct combination of options to do a certain operation. Also I didn't want to created a lot of custom scripts to do those things, like having a script that does `ls -la` alone, for instance.
 
 If I find a command that I want to use, but don't do it very often and don't want to lose it, or I want to study some application, like terraform or some other thing that has a bunch of different commands, I would want something like this available: feed a json file with the stuff you don't want to lose (commands and their descriptions) and the app will create a little menu for you.
+
+</details>
 
 ## How it words
 
