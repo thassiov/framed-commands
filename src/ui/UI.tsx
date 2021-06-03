@@ -114,6 +114,7 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
     const io = commandRunner.runCommand(commandId);
     setSelectedIo(io as OINULL);
     commandRunner.listenToCommandEvent(commandId, 'exit', handleCommandFinishedRunning);
+    commandRunner.listenToCommandEvent(commandId, 'error', handleCommandFinishedRunning);
   }
 
   const handleCommandFinishedRunning = () => {
