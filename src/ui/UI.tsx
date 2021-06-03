@@ -31,15 +31,25 @@ type UIProps = {
 } & UIHeaderProps;
 
 const UIHeader: FC<UIHeaderProps> = ({ name }: UIHeaderProps) => {
+  const [columns] = useStdoutDimensions();
+
+  const separator = () => {
+    return new Array(columns - 2).fill('─');
+  }
+
   return (
-    <Box
-    width={'100%'}
-    justifyContent={'center'}
-    borderColor={'red'}
-    borderStyle={'bold'}
-    >
-      <Text bold>{ name }</Text>
-    </Box>
+    <>
+      <Box
+      width={'100%'}
+      marginBottom={-1}
+      justifyContent={'flex-start'}
+      paddingX={2}>
+        <Text bold color={'cyan'}>{ name }</Text>
+      </Box>
+      <Box>
+        <Text bold color={'blackBright'}> { separator() }</Text>
+      </Box>
+    </>
   );
 }
 
@@ -97,7 +107,7 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
 
 	return (
     <Box
-      height={(rows * 0.10).toString()}
+      height={(rows * 0.20).toString()}
       width={columns}
       borderStyle={'round'}
       borderColor={'greenBright'}

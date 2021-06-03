@@ -23,15 +23,19 @@ const Header: FC<HeaderProps> = ({ commandDescriptor }: HeaderProps) => {
   return (
     <Box
     width={'100%'}
-    height={4}
+    height={10}
     flexDirection="column">
       <Box width={'100%'}>
-        <Text bold>Description: </Text>
-        <Text>{ description }</Text>
-      </Box>
-      <Box width={'100%'}>
         <Text bold>Full command: </Text>
-        <Text>{ command } { parameters.length ? parameters.join((' ')) : '' }</Text>
+        <Box marginLeft={1}>
+          <Text>{ command } { parameters.length ? parameters.join((' ')) : '' }</Text>
+        </Box>
+      </Box>
+      <Box width={'80%'}>
+        <Text bold>Description: </Text>
+        <Box marginLeft={1}>
+          <Text wrap={'wrap'}>{ description }</Text>
+        </Box>
       </Box>
     </Box>
   );
