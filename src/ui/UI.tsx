@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
 import { useInput, Box, useApp, Text } from 'ink';
 import  useStdoutDimensions  from 'ink-use-stdout-dimensions';
+import Spinner from 'ink-spinner';
 
 import {Readable} from 'stream';
 
@@ -30,7 +31,7 @@ type UIProps = {
   commandRunner: CommandRunner;
 } & UIHeaderProps;
 
-const UIHeader: FC<UIHeaderProps> = ({ name }: UIHeaderProps) => {
+const UIHeader: FC<UIHeaderProps & { commandName: string }> = ({ name, commandName }: UIHeaderProps & { commandName: string }) => {
   const [columns] = useStdoutDimensions();
 
   const separator = () => {
@@ -42,9 +43,21 @@ const UIHeader: FC<UIHeaderProps> = ({ name }: UIHeaderProps) => {
       <Box
       width={'100%'}
       marginBottom={-1}
-      justifyContent={'flex-start'}
+      justifyContent={'space-between'}
       paddingX={2}>
-        <Text bold color={'cyan'}>{ name }</Text>
+        <Box>
+          <Text bold color={'cyan'}>{ name }</Text>
+        </Box>
+        {
+          commandName ?
+            <Box>
+              <Text color={'blue'}>Running: </Text>
+              <Text italic bold>{ commandName } </Text>
+              <Spinner type={'point'} />
+            </Box>
+          :
+            <></>
+        }
       </Box>
       <Box>
         <Text bold color={'blackBright'}> { separator() }</Text>
@@ -63,6 +76,7 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
   // this 'parameters' business is not great, but I can't think of a better solution rn
   const [parameters, setParameters] = useState([] as Array<IFormInput>);
   const [currentCommandId, setCurrentCommandId] = useState(-1);
+  const [currentNameAlias, setCurrentNamealias] = useState('');
 
   useInput((input) => {
     if (input === 'q') {
@@ -83,6 +97,7 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
     } else {
       runCommand(commandId);
     }
+    setCurrentNamealias((commandRunner.getCommandList()[commandId] as ICommandDescriptor).nameAlias)
   }
 
   const handleAnswer = (answers: Array<IFormInput>) => {
@@ -98,6 +113,11 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
   const runCommand = (commandId: number) => {
     const io = commandRunner.runCommand(commandId);
     setSelectedIo(io as OINULL);
+    commandRunner.listenToCommandEvent(commandId, 'exit', handleCommandFinishedRunning);
+  }
+
+  const handleCommandFinishedRunning = () => {
+    setCurrentNamealias('');
   }
 
   const handleHightlight = (commandId: number) => {
@@ -112,7 +132,7 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
       borderStyle={'round'}
       borderColor={'greenBright'}
       flexDirection={'column'}>
-      { name && <UIHeader name={name} /> }
+      { name && <UIHeader name={name} commandName={currentNameAlias} /> }
       <Box>
       {
         awaitingForm ?

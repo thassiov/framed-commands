@@ -104,4 +104,14 @@ export default class CommandRunner {
 
     (this.commands[commandId] as ICommand).setParameters(parameters);
   }
+
+  public listenToCommandEvent(commandId: number, event: string, eventHandler: () => void): void {
+    const command = this.commands[commandId];
+
+    if(!command) {
+      throw new Error('Command does not exist');
+    }
+
+    command.onEvent(event, eventHandler);
+  }
 }
