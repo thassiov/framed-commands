@@ -23,7 +23,7 @@ const Header: FC<HeaderProps> = ({ commandDescriptor }: HeaderProps) => {
   return (
     <Box
     width={'100%'}
-    height={10}
+    height={process.env.MENU_HEIGHT}
     flexDirection="column">
       <Box width={'100%'}>
         <Text bold>Full command: </Text>

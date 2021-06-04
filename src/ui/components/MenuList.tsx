@@ -35,7 +35,7 @@ const MenuList: FC<MenuListProps> = ({ commandDescriptors, handleSelect, handleH
    flexDirection="column"
    alignSelf='flex-end'>
      <SelectInput
-       limit={10}
+       limit={parseInt(process.env.MENU_HEIGHT as string)}
        items={getItensForSelectInput(commandDescriptors)}
        onSelect={onInputSelected}
        onHighlight={onInputHighlighted}

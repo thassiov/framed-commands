@@ -15,6 +15,9 @@ import {logger} from './internal-tools/logger';
 import {processCliArgs} from './internal-tools/parseCliArgs';
 import {renderUi} from './ui';
 
+// This represents the number of max items in the menu list
+process.env.MENU_HEIGHT = '7';
+
 async function getHomeConfigs () {
   if(!process.env.HOME) {
     throw new Error('HOME env var is not set. Exiting');

@@ -1,5 +1,5 @@
-import React, { FC, useState } from 'react';
-import { useInput, Box, useApp, Text } from 'ink';
+import React, { FC, useEffect, useState } from 'react';
+import { useInput, Box, useApp, Text, useStdout } from 'ink';
 import  useStdoutDimensions  from 'ink-use-stdout-dimensions';
 import Spinner from 'ink-spinner';
 
@@ -69,6 +69,8 @@ const UIHeader: FC<UIHeaderProps & { commandName: string }> = ({ name, commandNa
 const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
   const { exit } = useApp();
   const [columns, rows] = useStdoutDimensions();
+  const { write: writeStdout} = useStdout();
+  const [programStarted, setProgramStarted] = useState(false);
 
   const [highlighted, setHighlighted] = useState(commandRunner.getCommandList()[0] as ICommandDescriptor);
   const [selectedIo, setSelectedIo] = useState(null as OINULL);
@@ -77,6 +79,19 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
   const [parameters, setParameters] = useState([] as Array<IFormInput>);
   const [currentCommandId, setCurrentCommandId] = useState(-1);
   const [currentNameAlias, setCurrentNamealias] = useState('');
+
+  useEffect(() => {
+    // To make sure the menu starts at the bottom of the screen, a number of empty lines are
+    // printed to stdout and it is calculated by the number of lines the screen has in height
+    // minus the menu's height.
+    if (!programStarted) {
+      const emptyLinesToPrint = rows - (parseInt(process.env.MENU_HEIGHT as string));
+      new Array(emptyLinesToPrint)
+        .fill('\n')
+        .forEach(line => writeStdout(line));
+      setProgramStarted(true);
+    }
+  });
 
   useInput((input) => {
     if (input === 'q') {
