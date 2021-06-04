@@ -52,15 +52,15 @@ async function runSelectionMenu(configs: string[]): Promise<string> {
     inquirer
     .prompt([
       {
-        type: "search-list",
-        message: "Select config",
-        name: "config",
-        choices: configs,
+        type: 'search-list',
+        message: "Select config (listing contents from the '$HOME/.tuizer' directory)",
+        name: 'selected',
+        choices: configs.map(c => c.split('/').pop()),
       }
     ])
-    .then(function({ config }) {
-      console.log(config);
-      resolve(config);
+    .then(function({ selected }) {
+      const config = configs.filter(c => c.endsWith(selected))[0];
+      resolve(config as string);
     })
     .catch(e => reject(e));
   });
