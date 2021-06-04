@@ -19,6 +19,25 @@
     "name": "Thassio Victor",
     "email": "tvmcarvalho@gmail.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thassiov/tuizer.git"
+  },
+  "keywords": [
+    "tui",
+    "cli",
+    "ink",
+    "ink-form",
+    "react",
+    "child_process",
+    "utility",
+    "typescript",
+    "spawn"
+  ],
+  "bugs": {
+    "url": "https://github.com/thassiov/tuizer/issues"
+  },
+  "homepage": "https://github.com/thassiov/tuizer#readme",
   "license": "MIT",
   "dependencies": {
     "ink": "^3.0.8",
