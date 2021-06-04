@@ -97,8 +97,8 @@ This *does not* enable the user to interact with the application run by `tuizer`
 }
 ```
 
-|name |type  |required |description
---- | --- | ---
+|name |type  |required |description |
+--- | --- | --- | ---
 |`type`|only `string` for now|yes|the type of the input|
 |`required`|`boolean`|no|input is obligatory|
 |`parameter`|`string`|yes|more info in the next section|
