@@ -26,57 +26,168 @@ If I find a command that I want to use, but don't do it very often and don't wan
 
 ## How it words
 
-You run `tuizer` and provide a `json` file with your commands. A list will be generated and you can chose and selec any command to run.
+`tuizer` can be fed a JSON file dirctly or, if no file is provided, it searches for `$HOME/.tuizer` directory for files
 
 ```bash
-tuizer ls-related-commands.json
+# the '.json' extension is optional
+tuizer ./some-json-file.json
+
+# or
+
+# this will launch a selection menu with the `$HOME/.tuizer`'s content
+tuizer
+
 ```
 
-## The JSON file
+Make sure to create the `$HOME/.tuizer` directory if you don't want to provide files everytime.
+
+## The `JSON` file
+
+### The base structure
 
 ```json
 {
-  "name":"Commands I am learning",
+  "name": "These are the commands I am learning",
+  "commands": [<command_structure>]
+}
+```
+
+The base structure only has 2 properties, one of them optional:
+
+|name |type  |required |
+--- | --- | ---
+|`name`|string|no|
+|`commands`|array of `comand`|yes|
+
+
+### The `command` structure
+
+```json
+{
+  "command": "some_command",
+  "parameters": [<parameters_structure>],
+  "description": "the command's description",
+  "nameAlias": "an alias to show in the menu instead of the command (because it might be big)"
+},
+```
+
+|name |type  |required |
+--- | --- | ---
+|`comand`|string|yes|
+|`parameters`|array of `parameters`|yes|
+|`description`|string|yes|
+|`nameAlias`|string|yes|
+
+### The `parameters` structure
+
+The `parameters` property can receive two types of elements: `strings` and `input object` structures.
+
+#### The `input object` structure
+
+The idea behind the structure is that there might be commands that need user input to *set parameters*.
+This *does not* enable the user to interact with the application run by `tuizer`, but only set the parameters for it to run.
+
+```json
+{
+  "type":"string",
+  "required":true,
+  "parameter":"",
+  "question":"Enter the cluster's name",
+  "defaultValue": "myCluster"
+}
+```
+
+|name |type  |required |description
+--- | --- | ---
+|`type`|only `string` for now|yes|the type of the input|
+|`required`|`boolean`|no|input is obligatory|
+|`parameter`|`string`|yes|more info in the next section|
+|`question`|`string`|yes|the sentence that will appear in the form for this parameter|
+|`defaultValue`|`string`|no|if the user does not input anything, this value will be used|
+
+Right now we only have `string` as a type, but in the future there will be `select`, `date`, maybe a `multiSelect`, who knows...😬
+
+##### The `parameter` property
+
+There are two ways to set this property:
+
+- leaving it blank and the parameter will be replaced by the answer given in the form, or
+- putting a string with a unescaped `$` in the middle that will be replaced by the answer
+
+The idea of the `$` character is that sometimes the information is in the middle of the string, so if you have a parameter like `--file log.<number>.txt` and you want to change the `<number>` part, you would write it as `--file log.$.txt` in the `parameter` field. The answer given in the form will replace the `$` character.
+
+## Example of a complete JSON file
+
+Here's how it looks like with all the structures in place (json taken from the project's `example` directory)
+
+```json
+{
+  "name":"K3D Kubernetes",
   "commands": [
     {
-      "command": "ls",
-      "parameters": ["-la"],
-      "description": "display extended file metadata as a table (-l) and show hidden and 'dot' files (-a)",
-      "nameAlias": "extended list, including hidden"
+      "command":"k3d",
+      "parameters": [
+        "cluster",
+        "list"
+      ],
+      "description":"Lists all k3d clusters",
+      "nameAlias":"list clusters"
     },
     {
-      "command": "cat",
-      "parameters": ["/etc/hostname"],
-      "description": "display the contents of /etc/hostname file",
-      "nameAlias": "show the hostname"
+      "command":"k3d",
+      "parameters": [
+        "cluster",
+        "start",
+        {
+          "type":"string",
+          "required":true,
+          "parameter":"",
+          "question":"Enter the cluster's name",
+          "defaultValue": "myCluster"
+        }
+      ],
+      "description":"Starts a named cluster (user input or 'my-cluster' by default)",
+      "nameAlias":"starts a named cluster"
     },
     {
-      "command": "sleep",
-      "parameters": ["3s"],
-      "description": "sleep for 3 seconds",
-      "nameAlias": "sleep 3s"
-    },
-    {
-      "command": "curl",
-      "parameters": ["--verbose","google.com"],
-      "description": "get google's web page in verbose mode",
-      "nameAlias": "get googles' page"
-    },
-    {
-      "command": "yay",
-      "parameters": ["-Ss","pulseaudio"],
-      "description": "for some reason search for pulseaudio at aur",
-      "nameAlias": "yay search pulseaudio"
-    },
-    {
-      "command": "ip",
-      "parameters": ["addr"],
-      "description": "Shows addresses assigned to all network interfaces",
-      "nameAlias": "Describe network interfaces"
+      "command":"k3d",
+      "parameters": [
+        "node",
+        "create",
+        {
+          "type":"string",
+          "required":true,
+          "parameter":"",
+          "question":"Enter the worker node's name",
+          "defaultValue": "myWorker"
+        },
+        "--replicas",
+        {
+          "type":"string",
+          "required":true,
+          "parameter":"",
+          "question":"Enter the number of replicas of worker nodes",
+          "defaultValue": "2"
+        },
+        "--cluster",
+        {
+          "type":"string",
+          "required":true,
+          "parameter":"",
+          "question":"Enter the cluster's name",
+          "defaultValue": "myCluster"
+        }
+      ],
+      "description":"Adds a number of worker nodes (user input or 2 by default) with a given name (user input or 'myWorker' by default) in a named cluster (user input or 'myCluster' by default)",
+      "nameAlias":"adds N named workers in a named cluster"
     }
   ]
 }
 ```
+
+## Contributing
+
+Send pull requests, idk
 
 ## License
 
