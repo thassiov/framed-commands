@@ -1,7 +1,7 @@
 {
   "name": "tuizer",
-  "version": "0.2.0",
-  "description": "Make a TUI app using a json file",
+  "version": "0.3.0",
+  "description": "Make a TUI app using a config file",
   "main": "./src/index.ts",
   "bin": {
     "tuizer": "./dist/index.js"
