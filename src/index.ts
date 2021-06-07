@@ -7,13 +7,11 @@ import { resolve } from 'path';
 import inquirer from 'inquirer';
 
 import CommandRunner from './command-runner';
-import {IJSONConfigFile} from './definitions/IJSONConfigFile';
 import {directoryLoader} from './internal-tools/directoryLoader';
-import {fileLoader} from './internal-tools/fileLoader';
-import {JSONParser} from './internal-tools/JSONParser';
-import {logger} from './internal-tools/logger';
-import {processCliArgs} from './internal-tools/parseCliArgs';
-import {renderUi} from './ui';
+import { configFileHandler } from './internal-tools/configFileHandler';
+import { logger } from './internal-tools/logger';
+import { processCliArgs } from './internal-tools/parseCliArgs';
+import { renderUi } from './ui';
 
 // This represents the number of max items in the menu list
 process.env.MENU_HEIGHT = '10';
@@ -71,7 +69,6 @@ async function runSelectionMenu(configs: string[]): Promise<string> {
 
 (async () => {
   try {
-
     const cliInputFileLocation = getUserInput();
 
     let filePath;
@@ -84,11 +81,7 @@ async function runSelectionMenu(configs: string[]): Promise<string> {
       filePath = selected;
     }
 
-    // loads the file based on the cwd (why cwd?)
-    const file = await fileLoader(filePath);
-
-    // gets the 'commands' prop (an array) from the config file
-    const { commands, name = '' } = JSONParser(file.toString()) as IJSONConfigFile;
+    const { commands, name = '' } = await configFileHandler(filePath);
 
     // Instantiated a new CommandRunner based on a list of commands
     const runner = new CommandRunner(commands);

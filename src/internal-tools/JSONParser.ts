@@ -1,21 +1,14 @@
-import {IJSONConfigFile} from "../definitions/IJSONConfigFile";
+import {logger} from "./logger";
 
-function instanceOfConfigFile(data: any): data is IJSONConfigFile {
-  return 'commands' in data;
-}
+type ParsingResult = {
+  [name: string]: any;
+};
 
-export function JSONParser(jsonString: string): IJSONConfigFile {
-  let config: IJSONConfigFile;
-
+export function JSONParser(jsonString: string): ParsingResult {
   try {
-    config = JSON.parse(jsonString);
-
-    if (!instanceOfConfigFile(config)) {
-      throw new Error();
-    }
+    return JSON.parse(jsonString);
   } catch (jsonError) {
-    throw new Error('Invalid JSON structure');
+    logger.error('Could not parse JSON structure:', jsonError.message);
+    throw jsonError;
   }
-
-  return config;
 }
