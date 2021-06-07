@@ -1,8 +1,7 @@
 <div align="center">
   <img src="tuizer-demo.gif">
-  <h5>Make a TUI app using a json file</h5>
+  <h5>Make a TUI app using a config file</h5>
 </div>
-
 
 # tuizer
 
@@ -14,7 +13,7 @@ npm install -g tuizer
 
 ## What is does
 
-From a json file, it creates a menu where you can execute commands. A small description of the command is also shown, if provided.
+From a config file, it creates a menu where you can execute commands. A small description of the command is also shown, if provided.
 
 <details><summary>Why (the motivation behind it)</summary>
 
@@ -24,13 +23,19 @@ If I find a command that I want to use, but don't do it very often and don't wan
 
 </details>
 
-## How it words
+## How it works
 
-`tuizer` can be fed a JSON file dirctly or, if no file is provided, it searches for `$HOME/.tuizer` directory for files
+`tuizer` can be fed a JSON or YAML file directly or, if no file is provided, it searches for the `$HOME/.tuizer` directory for files.
 
 ```bash
-# the '.json' extension is optional
+# the '.json' extension is optional if the format is json
 tuizer ./some-json-file.json
+tuizer ./some-json-file
+
+or
+
+# the '.yaml' or '.yml' extension is required if the format is yaml
+tuizer ./some-yaml-file.yaml
 
 # or
 
@@ -39,9 +44,12 @@ tuizer
 
 ```
 
-Make sure to create the `$HOME/.tuizer` directory if you don't want to provide files everytime.
+Make sure to create the `$HOME/.tuizer` directory and put your configs there if you don't want to provide them as argument everytime.
 
-## The `JSON` file
+## The config file
+
+As mentioned, the config can be both a JSON or a YAML file.
+The description here only mentions JSON, but an alternative doc will be written later with the YAML structure. At the end of this doc there are a JSON file example and a YAML file example converted from JSON using [json formatter](https://jsonformatter.org/).
 
 ### The base structure
 
@@ -116,7 +124,7 @@ There are two ways to set this property:
 
 The idea of the `$` character is that sometimes the information is in the middle of the string, so if you have a parameter like `--file log.<number>.txt` and you want to change the `<number>` part, you would write it as `--file log.$.txt` in the `parameter` field. The answer given in the form will replace the `$` character.
 
-## Example of a complete JSON file
+## Example of a JSON file
 
 Here's how it looks like with all the structures in place (json taken from the project's `example` directory)
 
@@ -183,6 +191,56 @@ Here's how it looks like with all the structures in place (json taken from the p
     }
   ]
 }
+```
+
+## Example of a YAML file (the same JSON, but converted using [json formatter](https://jsonformatter.org/)).
+
+```yaml
+name: K3D Kubernetes
+commands:
+  - command: k3d
+    parameters:
+      - cluster
+      - list
+    description: Lists all k3d clusters
+    nameAlias: list clusters
+  - command: k3d
+    parameters:
+      - cluster
+      - start
+      - type: string
+        required: true
+        parameter: ''
+        question: Enter the cluster's name
+        defaultValue: myCluster
+    description: Starts a named cluster (user input or 'my-cluster' by default)
+    nameAlias: starts a named cluster
+  - command: k3d
+    parameters:
+      - node
+      - create
+      - type: string
+        required: true
+        parameter: ''
+        question: Enter the worker node's name
+        defaultValue: myWorker
+      - '--replicas'
+      - type: string
+        required: true
+        parameter: ''
+        question: Enter the number of replicas of worker nodes
+        defaultValue: '2'
+      - '--cluster'
+      - type: string
+        required: true
+        parameter: ''
+        question: Enter the cluster's name
+        defaultValue: myCluster
+    description: >-
+      Adds a number of worker nodes (user input or 2 by default) with a given
+      name (user input or 'myWorker' by default) in a named cluster (user input
+      or 'myCluster' by default)
+    nameAlias: adds N named workers in a named cluster
 ```
 
 ## Contributing
