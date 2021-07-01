@@ -1,2 +1,2 @@
-import CommandRunner from './CommandRunner';
-export default CommandRunner;
+import CommandsService from './Commands';
+export default CommandsService;

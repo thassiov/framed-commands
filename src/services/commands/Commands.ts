@@ -14,7 +14,7 @@ interface IOutput {
  * using the `runCommand` method. The `id` is their index in the list, which
  * is zero indexed.
  */
-export default class CommandRunner {
+export default class CommandsService {
   // The list of commands
   private commands: Array<ICommand> = [];
 

@@ -6,7 +6,7 @@ const inquirerSearchList = require('inquirer-search-list');
 import { resolve } from 'path';
 import inquirer from 'inquirer';
 
-import CommandRunner from './services/command-runner';
+import CommandsService from './services/commands';
 import {directoryLoader} from './internal-tools/directoryLoader';
 import { configFileHandler } from './internal-tools/configFileHandler';
 import { logger } from './internal-tools/logger';
@@ -83,8 +83,8 @@ async function runSelectionMenu(configs: string[]): Promise<string> {
 
     const { commands, name = '' } = await configFileHandler(filePath);
 
-    // Instantiated a new CommandRunner based on a list of commands
-    const runner = new CommandRunner(commands);
+    // Instantiated a new CommandsService based on a list of commands
+    const runner = new CommandsService(commands);
 
     // start the frontend
     renderUi(runner, name);
