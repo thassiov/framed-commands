@@ -84,10 +84,10 @@ async function runSelectionMenu(configs: string[]): Promise<string> {
     const { commands, name = '' } = await configFileHandler(filePath);
 
     // Instantiated a new CommandsService based on a list of commands
-    const runner = new CommandsService(commands);
+    const commandsService = new CommandsService(commands);
 
     // start the frontend
-    renderUi(runner, name);
+    renderUi(commandsService, name);
   } catch (error) {
     logger.error(error);
   }

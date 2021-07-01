@@ -1,12 +1,17 @@
 import React from 'react';
 import { render } from 'ink';
 
-import { UI } from './UI';
+import Main from './views/main';
 
-import CommandRunner from "../services/command-runner";
+import CommandsService from '../services/commands';
 
-function renderUi(commandRunner: CommandRunner, name: string): void {
-  render(<UI commandRunner={commandRunner} name={name} />);
+function renderUi(commandsService: CommandsService, name: string): void {
+  render(
+    <>
+      { /* manifets list */ }
+      <Main commandsService={commandsService} name={name} />
+    </>
+  );
 }
 
 export {

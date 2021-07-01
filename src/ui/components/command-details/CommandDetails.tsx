@@ -1,7 +1,7 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect } from 'react';
 import { Box, Text, useStderr, useStdout, Newline } from 'ink';
-import {Readable} from "stream";
-import {CommandParameter, ICommandDescriptor} from "../../definitions/ICommandDescriptor";
+import { Readable } from 'stream';
+import { CommandParameter, ICommandDescriptor } from '../../../definitions/ICommandDescriptor';
 
 interface IOutput {
   io: {
@@ -83,9 +83,9 @@ const Header: FC<HeaderProps> = ({ commandDescriptor }: HeaderProps) => {
   );
 }
 
-const PresentationPane: FC<PresentationPaneProps> = ({ commandDescriptor, io }: PresentationPaneProps) => {
-  const { write: writeStdout} = useStdout();
-  const { write: writeStderr} = useStderr();
+const CommandDetails: FC<PresentationPaneProps> = ({ commandDescriptor, io }: PresentationPaneProps) => {
+  const { write: writeStdout } = useStdout();
+  const { write: writeStderr } = useStderr();
 
   useEffect(() => {
     io?.stdout?.on('data', (chunk) => writeStdout(chunk.toString()));
@@ -101,4 +101,4 @@ const PresentationPane: FC<PresentationPaneProps> = ({ commandDescriptor, io }: 
   );
 }
 
-export default PresentationPane;
+export default CommandDetails;

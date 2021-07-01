@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { FC, useState } from 'react';
 import { Box } from 'ink';
-import { InputParameter } from '../../definitions/ICommandDescriptor';
+import { InputParameter } from '../../../definitions/ICommandDescriptor';
 import { Form as FormA, FormFieldString, FormSection, FormStructure } from 'ink-form';
 
 interface IFormInput {

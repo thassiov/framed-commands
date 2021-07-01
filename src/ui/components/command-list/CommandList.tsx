@@ -1,17 +1,17 @@
 import React, { FC } from 'react';
 import SelectInput from 'ink-select-input';
+import { Item } from 'ink-select-input/build/SelectInput';
+import { Box } from 'ink';
 
-import {Item} from 'ink-select-input/build/SelectInput';
-import {Box} from 'ink';
-import {ICommandDescriptor} from '../../definitions/ICommandDescriptor';
+import { ICommandDescriptor } from '../../../definitions/ICommandDescriptor';
 
 type MenuListProps = {
   handleSelect: (commandId: number) => void;
   handleHightlight: (commandId: number) => void;
-  commandDescriptors: Array<ICommandDescriptor>;
+  commandsList: Array<ICommandDescriptor>;
 };
 
-const MenuList: FC<MenuListProps> = ({ commandDescriptors, handleSelect, handleHightlight }: MenuListProps) => {
+const CommandList: FC<MenuListProps> = ({ commandsList, handleSelect, handleHightlight }: MenuListProps) => {
   const onInputSelected = (item: Item<number>) => {
     handleSelect(item.value);
   }
@@ -20,8 +20,8 @@ const MenuList: FC<MenuListProps> = ({ commandDescriptors, handleSelect, handleH
     handleHightlight(item.value);
   }
 
-  const getItensForSelectInput = (commandDescriptors: Array<ICommandDescriptor>) => {
-    return commandDescriptors
+  const getItensForSelectInput = (commandsList: Array<ICommandDescriptor>) => {
+    return commandsList
      .map((item: ICommandDescriptor, idx: number) => ({
          label: item.nameAlias,
          value: idx,
@@ -32,11 +32,11 @@ const MenuList: FC<MenuListProps> = ({ commandDescriptors, handleSelect, handleH
  return (
    <Box
    width={'40%'}
-   flexDirection="column"
+   flexDirection='column'
    alignSelf='flex-end'>
      <SelectInput
        limit={parseInt(process.env.MENU_HEIGHT as string)}
-       items={getItensForSelectInput(commandDescriptors)}
+       items={getItensForSelectInput(commandsList)}
        onSelect={onInputSelected}
        onHighlight={onInputHighlighted}
        />
@@ -44,4 +44,4 @@ const MenuList: FC<MenuListProps> = ({ commandDescriptors, handleSelect, handleH
  );
 }
 
-export default MenuList;
+export default CommandList;
