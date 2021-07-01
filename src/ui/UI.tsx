@@ -5,7 +5,7 @@ import Spinner from 'ink-spinner';
 
 import {Readable} from 'stream';
 
-import CommandRunner from '../command-runner';
+import CommandRunner from '../services/command-runner';
 import MenuList from './components/MenuList';
 import PresentationPane from './components/PresentationPane';
 import {ICommandDescriptor, InputParameter} from '../definitions/ICommandDescriptor';

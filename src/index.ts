@@ -6,7 +6,7 @@ const inquirerSearchList = require('inquirer-search-list');
 import { resolve } from 'path';
 import inquirer from 'inquirer';
 
-import CommandRunner from './command-runner';
+import CommandRunner from './services/command-runner';
 import {directoryLoader} from './internal-tools/directoryLoader';
 import { configFileHandler } from './internal-tools/configFileHandler';
 import { logger } from './internal-tools/logger';

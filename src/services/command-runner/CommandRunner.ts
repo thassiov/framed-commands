@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
-import { ICommand } from '../definitions/ICommand';
-import { CommandParameter, ICommandDescriptor } from '../definitions/ICommandDescriptor';
-import { Command } from '../models';
+import { ICommand } from '../../definitions/ICommand';
+import { CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
+import { Command } from '../../models';
 
 interface IOutput {
   stdout: Readable;
