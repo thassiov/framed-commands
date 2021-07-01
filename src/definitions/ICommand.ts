@@ -6,6 +6,7 @@ import {IHistoryEntry} from "./IHistoryEntry";
 
 interface ICommandEventAccessor {
   onEvent(event: string, listener: () => void): any;
+  removeAllEventListeners(): any;
 }
 
 interface ICommandInfoAccessor {

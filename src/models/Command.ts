@@ -228,6 +228,15 @@ export class Command implements ICommand {
   }
 
   /**
+   * Removes all listeners the childProcess currently has
+   *
+   * @returns any
+   */
+  public removeAllEventListeners(): any {
+    this.childProcess?.removeAllListeners();
+  }
+
+  /**
    * Gets the process' history data
    *
    * @returns an array of IHistoryEntry

@@ -54,6 +54,8 @@ const Commands: FC<CommandsProps> = ({ commandsService, statusBarService }: Comm
   }
 
   const handleHightlight = (commandId: number) => {
+    commandsService.stopListeningtoCommandEvents(commandId);
+
     const command = commandsService.getCommandList()[commandId];
     setHighlighted(command as ICommandDescriptor);
   }

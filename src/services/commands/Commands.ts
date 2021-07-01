@@ -114,4 +114,12 @@ export default class CommandsService {
 
     command.onEvent(event, eventHandler);
   }
+
+  public stopListeningtoCommandEvents(commandId: number): void {
+    if(!this.commands[commandId]) {
+      throw new Error('Command does not exist');
+    }
+
+    this.commands[commandId]?.removeAllEventListeners();
+  }
 }
