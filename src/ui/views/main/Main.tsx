@@ -5,11 +5,11 @@ import Spinner from 'ink-spinner';
 
 import {Readable} from 'stream';
 
-import CommandRunner from '../services/command-runner';
-import MenuList from './components/MenuList';
-import PresentationPane from './components/PresentationPane';
-import {ICommandDescriptor, InputParameter} from '../definitions/ICommandDescriptor';
-import Form  from './components/Form';
+import CommandRunner from '../../../services/command-runner';
+import MenuList from './../../components/MenuList';
+import PresentationPane from './../../components/PresentationPane';
+import {ICommandDescriptor, InputParameter} from '../../../definitions/ICommandDescriptor';
+import Form  from './../../components/Form';
 
 interface IOutput {
   stdout: Readable;
@@ -66,7 +66,7 @@ const UIHeader: FC<UIHeaderProps & { commandName: string }> = ({ name, commandNa
   );
 }
 
-const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
+const Main: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
   const { exit } = useApp();
   const [columns, rows] = useStdoutDimensions();
   const { write: writeStdout} = useStdout();
@@ -172,4 +172,4 @@ const UI: FC<UIProps> = ({ commandRunner, name }: UIProps) => {
   );
 }
 
-export { UI };
+export default Main;
