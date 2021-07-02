@@ -120,7 +120,6 @@ export default class CommandsService {
       throw new Error('Command does not exist');
     }
 
-    this.commands[commandId]?.removeAllEventListeners('exit');
-    this.commands[commandId]?.removeAllEventListeners('error');
+    this.commands[commandId]?.removeAllEventListeners();
   }
 }

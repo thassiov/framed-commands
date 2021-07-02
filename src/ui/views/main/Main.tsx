@@ -57,7 +57,6 @@ const Main: FC<MainProps> = ({ name, commandsService, goPickManifest }: MainProp
       height={(rows * 0.20).toString()}
       width={columns}
       borderStyle={'round'}
-      borderColor={'greenBright'}
       flexDirection={'column'}>
       <StatusBar name={name} externalComponent={externalComponent} />
       <Commands commandsService={commandsService} statusBarService={statusBarService} />

@@ -232,8 +232,15 @@ export class Command implements ICommand {
    *
    * @returns any
    */
-  public removeAllEventListeners(event: string | undefined): any {
-    this.childProcess?.removeAllListeners(event);
+  public removeAllEventListeners(event?: string): void {
+    if (this.childProcess) {
+      if (event) {
+        this.childProcess.removeAllListeners(event);
+      } else {
+        const events = this.childProcess.eventNames();
+        events.forEach((event) => this.childProcess?.removeAllListeners(event));
+      }
+    }
   }
 
   /**

@@ -5,11 +5,16 @@ import Main from './views/main';
 
 import Manifests from './views/manifests';
 import {IJSONConfigFile} from '../definitions/IJSONConfigFile';
+
 import CommandsService from '../services/commands';
 
 type ChoosenManifest = IJSONConfigFile;
 
-const FirstComponent: FC = () => {
+type FirstComponentProps = {
+  manifestFromCli?: ChoosenManifest;
+};
+
+const FirstComponent: FC<FirstComponentProps> = ({ manifestFromCli }: FirstComponentProps) => {
   const [manifest, setManifest] = useState({} as ChoosenManifest);
   const [pickManifest, setPickManifest] = useState(true);
   const [commandsService, setCommandsService] = useState(new CommandsService([]));
@@ -19,6 +24,11 @@ const FirstComponent: FC = () => {
   const donePickingManifest = () => setPickManifest(false);
 
   useEffect(() => {
+    if (manifestFromCli) {
+      setManifest(manifestFromCli);
+      donePickingManifest();
+    }
+
     if (!pickManifest) {
       setCommandsService(new CommandsService(manifest.commands));
     }
@@ -37,8 +47,8 @@ const FirstComponent: FC = () => {
 }
 
 // receive a manifest path in the function
-function renderUi(): void {
-  render(<FirstComponent />);
+function renderUi(manifestFromCli?: ChoosenManifest): void {
+  render(<FirstComponent manifestFromCli={manifestFromCli} />);
 }
 
 export {

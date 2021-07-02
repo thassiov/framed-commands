@@ -90,7 +90,7 @@ const CommandDetails: FC<PresentationPaneProps> = ({ commandDescriptor, io }: Pr
   useEffect(() => {
     io?.stdout?.on('data', (chunk) => writeStdout(chunk.toString()));
     io?.stderr?.on('data', (chunk) => writeStderr(chunk.toString()));
-  });
+  }, [io]);
 
   return (
     <Box
