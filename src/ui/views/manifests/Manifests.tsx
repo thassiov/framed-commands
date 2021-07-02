@@ -4,6 +4,7 @@ import SelectInput from 'ink-select-input/build';
 import {Item} from 'ink-select-input/build/SelectInput';
 import {IJSONConfigFile} from '../../../definitions/IJSONConfigFile';
 import ManifestPickerService from '../../../services/manifest-picker';
+import {parse} from 'path';
 
 type ChoosenManifest = IJSONConfigFile;
 
@@ -32,7 +33,9 @@ const Manifests: FC<ManifestsProps> = ({ setManifest, donePickingManifest }: Man
   };
 
   const getItensForSelectInput = () => {
-    return manifests.map((item: string, idx: number) => ({
+    return manifests
+    .map(item => parse(item).base)
+    .map((item: string, idx: number) => ({
       label: item,
       value: idx
     }));
@@ -42,7 +45,7 @@ const Manifests: FC<ManifestsProps> = ({ setManifest, donePickingManifest }: Man
    <Box
    width={'40%'}
    flexDirection='column'
-   alignSelf='flex-end'>
+   alignSelf='flex-start'>
      <SelectInput
        limit={parseInt(process.env.MENU_HEIGHT as string)}
        items={getItensForSelectInput()}
