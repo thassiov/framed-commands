@@ -10,13 +10,16 @@ import StatusBar from '../../components/status-bar';
 import EmptyReactFragment from '../../../utils/EmptyReactFragment';
 
 import Commands from '../commands';
+import {IJSONConfigFile} from '../../../definitions/IJSONConfigFile';
 
 type MainProps = {
-  commandsService: CommandsService;
-  name: string;
+  manifest: IJSONConfigFile;
+  goPickManifest: () => void;
 };
 
-const Main: FC<MainProps> = ({ commandsService, name }: MainProps) => {
+const Main: FC<MainProps> = ({ manifest, goPickManifest }: MainProps) => {
+  const { name = 'aaaaa', commands } = manifest;
+
   const { exit } = useApp();
   const [columns, rows] = useStdoutDimensions();
   const { write: writeStdout} = useStdout();
@@ -24,6 +27,7 @@ const Main: FC<MainProps> = ({ commandsService, name }: MainProps) => {
   const [externalComponent, setExternalComponent] = useState(EmptyReactFragment());
 
   const statusBarService = new StatusBarService(setExternalComponent);
+  const commandsService = new CommandsService(commands);
 
   useEffect(() => {
     // To make sure the menu starts at the bottom of the screen, a number of empty lines are
@@ -38,9 +42,15 @@ const Main: FC<MainProps> = ({ commandsService, name }: MainProps) => {
     }
   });
 
-  useInput((input) => {
+  useInput((input, key) => {
     if (input === 'q') {
       exit();
+    }
+
+    if (key.backspace) {
+      // I have to control this in a better way. For instance, do not
+      // allow for this behavior when the form is open
+      goPickManifest();
     }
   });
 
@@ -51,7 +61,6 @@ const Main: FC<MainProps> = ({ commandsService, name }: MainProps) => {
       borderStyle={'round'}
       borderColor={'greenBright'}
       flexDirection={'column'}>
-      { /* manifests component */ }
       <StatusBar name={name} externalComponent={externalComponent} />
       <Commands commandsService={commandsService} statusBarService={statusBarService} />
     </Box>
