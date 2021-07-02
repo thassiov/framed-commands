@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useInput, Box, useApp, useStdout } from 'ink';
-import  useStdoutDimensions  from 'ink-use-stdout-dimensions';
+import useStdoutDimensions from 'ink-use-stdout-dimensions';
 
 import CommandsService from '../../../services/commands';
 import StatusBarService from '../../../services/status-bar';
@@ -21,7 +21,7 @@ const Main: FC<MainProps> = ({ name, commandsService, goPickManifest }: MainProp
 
   const { exit } = useApp();
   const [columns, rows] = useStdoutDimensions();
-  const { write: writeStdout} = useStdout();
+  const { write: writeStdout } = useStdout();
   const [programStarted, setProgramStarted] = useState(false);
   const [externalComponent, setExternalComponent] = useState(EmptyReactFragment());
 
