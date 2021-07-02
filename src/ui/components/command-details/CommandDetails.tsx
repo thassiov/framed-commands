@@ -96,7 +96,12 @@ const CommandDetails: FC<PresentationPaneProps> = ({ commandDescriptor, io }: Pr
     <Box
     flexDirection="row"
     alignSelf='flex-end'>
-      <Header commandDescriptor={commandDescriptor} />
+    {
+      commandDescriptor ?
+        <Header commandDescriptor={commandDescriptor} />
+        :
+        <Text>Nothing to see here</Text>
+    }
     </Box>
   );
 }

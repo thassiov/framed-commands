@@ -10,15 +10,14 @@ import StatusBar from '../../components/status-bar';
 import EmptyReactFragment from '../../../utils/EmptyReactFragment';
 
 import Commands from '../commands';
-import {IJSONConfigFile} from '../../../definitions/IJSONConfigFile';
 
 type MainProps = {
-  manifest: IJSONConfigFile;
+  commandsService: CommandsService;
   goPickManifest: () => void;
+  name: string;
 };
 
-const Main: FC<MainProps> = ({ manifest, goPickManifest }: MainProps) => {
-  const { name = 'aaaaa', commands } = manifest;
+const Main: FC<MainProps> = ({ name, commandsService, goPickManifest }: MainProps) => {
 
   const { exit } = useApp();
   const [columns, rows] = useStdoutDimensions();
@@ -27,7 +26,6 @@ const Main: FC<MainProps> = ({ manifest, goPickManifest }: MainProps) => {
   const [externalComponent, setExternalComponent] = useState(EmptyReactFragment());
 
   const statusBarService = new StatusBarService(setExternalComponent);
-  const commandsService = new CommandsService(commands);
 
   useEffect(() => {
     // To make sure the menu starts at the bottom of the screen, a number of empty lines are
@@ -47,8 +45,8 @@ const Main: FC<MainProps> = ({ manifest, goPickManifest }: MainProps) => {
       exit();
     }
 
-    if (key.backspace) {
-      // I have to control this in a better way. For instance, do not
+    if (key.shift && key.tab) {
+      // @TODO I have to control this in a better way. For instance, do not
       // allow for this behavior when the form is open
       goPickManifest();
     }

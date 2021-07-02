@@ -54,6 +54,7 @@ const Commands: FC<CommandsProps> = ({ commandsService, statusBarService }: Comm
   }
 
   const handleHightlight = (commandId: number) => {
+    // remove all listeners from the last command
     commandsService.stopListeningtoCommandEvents(commandId);
 
     const command = commandsService.getCommandList()[commandId];
