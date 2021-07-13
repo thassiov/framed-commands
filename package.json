@@ -40,21 +40,21 @@
   "homepage": "https://github.com/thassiov/tuizer#readme",
   "license": "MIT",
   "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.10.0",
     "chalk": "^4.1.1",
     "ink": "^3.0.8",
     "ink-form": "^1.0.1",
     "ink-select-input": "^4.2.0",
     "ink-spinner": "^4.0.2",
     "ink-use-stdout-dimensions": "^1.0.5",
-    "inquirer": "^8.1.0",
-    "inquirer-search-list": "^1.2.6",
     "js-yaml": "^4.1.0",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@types/inquirer": "^7.3.1",
-    "@types/jest": "25.1.4",
+    "@types/blessed": "^0.1.17",
     "@types/chalk": "^2.2.0",
+    "@types/jest": "25.1.4",
     "@types/js-yaml": "^4.0.1",
     "@types/node": "^14.17.2",
     "@types/react": "^17.0.8",
@@ -123,7 +123,8 @@
             ".tsx"
           ]
         }
-      ]
+      ],
+      "@typescript-eslint/no-explicit-any": "off"
     }
   }
 }
