@@ -21,7 +21,6 @@ const Main: FC = () => {
   };
 
   const unsetSelectedManifest = () => {
-    setManifest({} as IJSONConfigFile);
     setManifestSelector('');
   }
 

@@ -1,4 +1,4 @@
-import {Box, useFocus} from 'ink';
+import {Box, Text, useFocus} from 'ink';
 import React, { FC } from 'react';
 import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
 
@@ -13,7 +13,7 @@ type CommandsProps = {
 const Commands: FC<CommandsProps> = ({ manifest }: CommandsProps) => {
   const {isFocused} = useFocus({ autoFocus: true });
 
-  const commandsService = new CommandsService(manifest.commands);
+  const commandsService = new CommandsService(manifest.commands.length ? manifest.commands : []);
 
   const handleSelect = () => {
     if (isFocused) {
@@ -30,9 +30,14 @@ const Commands: FC<CommandsProps> = ({ manifest }: CommandsProps) => {
    borderColor={isFocused ? 'red' : 'white'}
    flexDirection={'column'}
    alignSelf={'flex-start'}>
-    <CommandList
-      commands={getCommandsList()}
-      handleSelect={handleSelect}/>
+   {
+     commandsService.getCommandList().length ?
+       <CommandList
+         commands={getCommandsList()}
+         handleSelect={handleSelect}/>
+     :
+       <Text>No commands available</Text>
+   }
    </Box>
   );
 };
