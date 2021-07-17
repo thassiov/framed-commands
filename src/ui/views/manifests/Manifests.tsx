@@ -30,7 +30,7 @@ const Manifests: FC<ManifestsProps> = ({ setSelectedManifest }: ManifestsProps) 
 
   return (
    <Box
-   width={'40%'}
+   width={'100%'}
    borderStyle={isFocused ? 'bold' : 'round'}
    borderColor={isFocused ? 'red' : 'white'}
    flexDirection={'column'}

@@ -1,9 +1,19 @@
 import React, { FC, useState } from 'react';
 import { Box, Text, useFocus, useInput } from 'ink';
-import Manifests from '../manifests';
-import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
 import useStdoutDimensions from 'ink-use-stdout-dimensions';
+
 import Commands from '../commands';
+import Manifests from '../manifests';
+import StatusBar from '../status-bar';
+
+import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
+import { CommandStatus } from '../../../definitions/CommandStatusEnum';
+import { ICommandDescriptor } from '../../../definitions/ICommandDescriptor';
+
+export type CommandData = {
+  command: ICommandDescriptor;
+  status: CommandStatus;
+};
 
 const Main: FC = () => {
   const [columns, rows] = useStdoutDimensions();
@@ -13,6 +23,8 @@ const Main: FC = () => {
   // this is a control state. I need a better way of solving this thing
   const [manifestSelector, setManifestSelector] = useState('');
   const [manifest, setManifest] = useState({} as IJSONConfigFile);
+
+  const [commandData, setCommandData] = useState<CommandData | undefined>(undefined);
 
   const setSelectedManifest = (selectedManifest: IJSONConfigFile) => {
     setManifest(selectedManifest);
@@ -28,6 +40,10 @@ const Main: FC = () => {
     <Box
       width={columns}
       height={rows}>
+      <Box
+        paddingX={2}
+        width={'50%'}
+        flexDirection={'column'}>
         {
           manifestSelector ?
             <Box
@@ -36,7 +52,7 @@ const Main: FC = () => {
                 <SelectedManifestCollapsed
                   manifestName={manifestSelector}
                   unsetSelectedManifest={unsetSelectedManifest}/>
-                <Commands manifest={manifest} />
+                <Commands manifest={manifest} setCommandData={setCommandData} />
             </Box>
                   :
             <Box
@@ -45,6 +61,18 @@ const Main: FC = () => {
                 <Manifests setSelectedManifest={setSelectedManifest} />
             </Box>
         }
+      </Box>
+      <Box
+        paddingX={2}
+        width={'50%'}
+        flexDirection={'column'}>
+        {
+          manifestSelector ?
+            <StatusBar commandData={commandData} />
+            :
+            <StatusBar message={'Select a Manifest to start running commands'} />
+        }
+      </Box>
     </Box>
   );
 }
@@ -67,7 +95,7 @@ const SelectedManifestCollapsed: FC<SelectedManifestCollapsedProps> = ({ manifes
 
   return (
     <Box
-    width={'40%'}
+    width={'100%'}
     borderStyle={isFocused ? 'bold' : 'round'}
     borderColor={isFocused ? 'red' : 'white'}
     flexDirection={'column'}

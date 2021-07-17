@@ -3,5 +3,5 @@ export enum CommandStatus {
   STOPPED = 'stopped',
   KILLED = 'killed',
   FINISHED = 'finished',
-  NOT_STARTED = 'not_started',
-};
+  NOT_STARTED = 'not started',
+}

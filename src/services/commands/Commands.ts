@@ -67,6 +67,16 @@ export default class CommandsService {
     return this.commandDescriptors;
   }
 
+  public getCommandById(commandId: number): ICommand {
+    const command = this.commands[commandId];
+
+    if(!command) {
+      throw new Error(`Command id ${commandId} does not exists`);
+    }
+
+    return command;
+  }
+
   /**
    * Returns the number of registered commands in the CommandRunner
    *
