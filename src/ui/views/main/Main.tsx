@@ -1,13 +1,16 @@
 import React, { FC, useState } from 'react';
 import { Box, Text, useFocus, useInput } from 'ink';
 import Manifests from '../manifests';
-import {IJSONConfigFile} from '../../../definitions/IJSONConfigFile';
+import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
 import useStdoutDimensions from 'ink-use-stdout-dimensions';
+import Commands from '../commands';
 
 const Main: FC = () => {
   const [columns, rows] = useStdoutDimensions();
 
-  // @TODO manifestSelector is trash. needs renaming
+  // @TODO manifestSelector is trash. needs renaming. Also, this is here just because I didn't want to
+  // put in the render manifest.name ? <things> : <other thing> because `name` is optional.
+  // this is a control state. I need a better way of solving this thing
   const [manifestSelector, setManifestSelector] = useState('');
   const [manifest, setManifest] = useState({} as IJSONConfigFile);
 
@@ -26,16 +29,23 @@ const Main: FC = () => {
     <Box
       width={columns}
       height={rows}>
-      <Box>
-      {
-        manifestSelector ?
-          <SelectedManifestCollapsed
-            manifestName={manifestSelector}
-            unsetSelectedManifest={unsetSelectedManifest}/>
-          :
-          <Manifests setSelectedManifest={setSelectedManifest} />
-      }
-      </Box>
+        {
+          manifestSelector ?
+            <Box
+              width={'100%'}
+              flexDirection={'column'}>
+                <SelectedManifestCollapsed
+                  manifestName={manifestSelector}
+                  unsetSelectedManifest={unsetSelectedManifest}/>
+                <Commands manifest={manifest} />
+            </Box>
+                  :
+            <Box
+              width={'100%'}
+              flexDirection={'column'}>
+                <Manifests setSelectedManifest={setSelectedManifest} />
+            </Box>
+        }
     </Box>
   );
 }

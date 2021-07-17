@@ -4,23 +4,25 @@ import { Item } from 'ink-select-input/build/SelectInput';
 import { ICommandDescriptor } from '../../../definitions/ICommandDescriptor';
 import ItemSelectBox from '../item-select-box';
 
-type MenuListProps = {
+type CommandListProps = {
+  commands: Array<ICommandDescriptor>;
   handleSelect: (commandId: number) => void;
-  handleHightlight: (commandId: number) => void;
-  commandsList: Array<ICommandDescriptor>;
+  handleHightlight?: (commandId: number) => void;
 };
 
-const CommandList: FC<MenuListProps> = ({ commandsList, handleSelect, handleHightlight }: MenuListProps) => {
+const CommandList: FC<CommandListProps> = ({ commands, handleSelect, handleHightlight }: CommandListProps) => {
   const onInputSelected = (item: Item<number>) => {
     handleSelect(item.value);
   }
 
   const onInputHighlighted = (item: Item<number>) => {
-    handleHightlight(item.value);
+    if (handleHightlight) {
+      handleHightlight(item.value);
+    }
   }
 
-  const getItensForSelectInput = (commandsList: Array<ICommandDescriptor>) => {
-    return commandsList
+  const getItensForSelectInput = () => {
+    return commands
      .map((item: ICommandDescriptor, idx: number) => ({
          label: item.nameAlias,
          value: idx,
@@ -30,7 +32,7 @@ const CommandList: FC<MenuListProps> = ({ commandsList, handleSelect, handleHigh
 
  return (
    <ItemSelectBox
-     items={getItensForSelectInput(commandsList)}
+     items={getItensForSelectInput()}
      onSelect={onInputSelected}
      onHighlight={onInputHighlighted}
    />

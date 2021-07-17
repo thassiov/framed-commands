@@ -20,8 +20,8 @@ const ManifestList: FC<ManifestListProps> = ({ manifests, handleSelect, handleHi
     }
   }
 
-  const getItensForSelectInput = (commandsList: Array<string>) => {
-    return commandsList
+  const getItensForSelectInput = () => {
+    return manifests
     .map((item: string) => parse(item).name)
     .map((item: string, idx: number) => ({
       label: item,
@@ -32,7 +32,7 @@ const ManifestList: FC<ManifestListProps> = ({ manifests, handleSelect, handleHi
 
  return (
    <ItemSelectBox
-     items={getItensForSelectInput(manifests)}
+     items={getItensForSelectInput()}
      onSelect={onInputSelected}
      onHighlight={onInputHighlighted}
    />
