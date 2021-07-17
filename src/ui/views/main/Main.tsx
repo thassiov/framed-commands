@@ -1,67 +1,71 @@
-import React, { FC, useEffect, useState } from 'react';
-import { useInput, Box, useApp, useStdout } from 'ink';
+import React, { FC, useState } from 'react';
+import { Box, Text, useFocus, useInput } from 'ink';
+import Manifests from '../manifests';
+import {IJSONConfigFile} from '../../../definitions/IJSONConfigFile';
 import useStdoutDimensions from 'ink-use-stdout-dimensions';
 
-import CommandsService from '../../../services/commands';
-import StatusBarService from '../../../services/status-bar';
+const Main: FC = () => {
+  const [columns, rows] = useStdoutDimensions();
 
-import StatusBar from '../../components/status-bar';
+  // @TODO manifestSelector is trash. needs renaming
+  const [manifestSelector, setManifestSelector] = useState('');
+  const [manifest, setManifest] = useState({} as IJSONConfigFile);
 
-import EmptyReactFragment from '../../../utils/EmptyReactFragment';
+  const setSelectedManifest = (selectedManifest: IJSONConfigFile) => {
+    setManifest(selectedManifest);
+    setManifestSelector(selectedManifest.name || 'unnamed');
+    console.log(manifest);
+  };
 
-import Commands from '../commands';
+  const unsetSelectedManifest = () => {
+    setManifest({} as IJSONConfigFile);
+    setManifestSelector('');
+  }
 
-type MainProps = {
-  commandsService: CommandsService;
-  goPickManifest: () => void;
-  name: string;
+  return (
+    <Box
+      width={columns}
+      height={rows}>
+      <Box>
+      {
+        manifestSelector ?
+          <SelectedManifestCollapsed
+            manifestName={manifestSelector}
+            unsetSelectedManifest={unsetSelectedManifest}/>
+          :
+          <Manifests setSelectedManifest={setSelectedManifest} />
+      }
+      </Box>
+    </Box>
+  );
+}
+
+type SelectedManifestCollapsedProps = {
+  manifestName: string;
+  unsetSelectedManifest: () => void;
 };
 
-const Main: FC<MainProps> = ({ name, commandsService, goPickManifest }: MainProps) => {
+// @TODO also needs better naming
+const SelectedManifestCollapsed: FC<SelectedManifestCollapsedProps> = ({ manifestName, unsetSelectedManifest }: SelectedManifestCollapsedProps) => {
+  const {isFocused} = useFocus();
 
-  const { exit } = useApp();
-  const [columns, rows] = useStdoutDimensions();
-  const { write: writeStdout } = useStdout();
-  const [programStarted, setProgramStarted] = useState(false);
-  const [externalComponent, setExternalComponent] = useState(EmptyReactFragment());
-
-  const statusBarService = new StatusBarService(setExternalComponent);
-
-  useEffect(() => {
-    // To make sure the menu starts at the bottom of the screen, a number of empty lines are
-    // printed to stdout and it is calculated by the number of lines the screen has in height
-    // minus the menu's height.
-    if (!programStarted) {
-      const emptyLinesToPrint = rows - (parseInt(process.env.MENU_HEIGHT as string));
-      new Array(emptyLinesToPrint)
-        .fill('\n')
-        .forEach(line => writeStdout(line));
-      setProgramStarted(true);
-    }
-  });
-
-  useInput((input, key) => {
-    if (input === 'q') {
-      exit();
-    }
-
-    if (key.shift && key.tab) {
-      // @TODO I have to control this in a better way. For instance, do not
-      // allow for this behavior when the form is open
-      goPickManifest();
+  useInput((_, key) => {
+    if (isFocused && key.return) {
+      // @TODO works, but needs a confirmation dialog because this action can be unintentional
+      unsetSelectedManifest();
     }
   });
 
   return (
     <Box
-      height={(rows * 0.20).toString()}
-      width={columns}
-      borderStyle={'round'}
-      flexDirection={'column'}>
-      <StatusBar name={name} externalComponent={externalComponent} />
-      <Commands commandsService={commandsService} statusBarService={statusBarService} />
+    width={'40%'}
+    borderStyle={isFocused ? 'bold' : 'round'}
+    borderColor={isFocused ? 'red' : 'white'}
+    flexDirection={'column'}
+    alignSelf={'flex-start'}>
+      <Text>{manifestName}</Text>
     </Box>
-  );
+  )
 }
 
 export default Main;

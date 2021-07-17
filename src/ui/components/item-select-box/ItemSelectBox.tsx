@@ -22,9 +22,9 @@ const ItemSelectBox: FC<ItemSelectBoxProps> = ({
 
   return (
     <Box
-    width={ boxLayout?.width || '40%'}
+    width={ boxLayout?.width || '100%'}
     flexDirection='column'
-    alignSelf={ boxLayout?.alignSelf || 'flex-end' }>
+    alignSelf={ boxLayout?.alignSelf || 'flex-start' }>
       <SelectInput
       limit={parseInt(process.env.MENU_HEIGHT as string)}
       items={items}

@@ -1,19 +1,15 @@
 import React, { FC, useEffect, useState } from 'react';
-import {Box} from 'ink';
-import SelectInput from 'ink-select-input/build';
-import {Item} from 'ink-select-input/build/SelectInput';
-import {IJSONConfigFile} from '../../../definitions/IJSONConfigFile';
+import {Box, Text, useFocus} from 'ink';
 import ManifestPickerService from '../../../services/manifest-picker';
-import {parse} from 'path';
-
-type ChoosenManifest = IJSONConfigFile;
+import ManifestList from '../../components/manifest-list/ManifestList';
+import {IJSONConfigFile} from '../../../definitions/IJSONConfigFile';
 
 type ManifestsProps = {
-  setManifest: React.Dispatch<ChoosenManifest>;
-  donePickingManifest: () => void;
+  setSelectedManifest: (selectedManifest: IJSONConfigFile) => void;
 }
 
-const Manifests: FC<ManifestsProps> = ({ setManifest, donePickingManifest }: ManifestsProps) => {
+const Manifests: FC<ManifestsProps> = ({ setSelectedManifest }: ManifestsProps) => {
+  const {isFocused} = useFocus({ autoFocus: true });
   const [manifests, setManifests] = useState([] as Array<string>);
   const manifestPickerService = new ManifestPickerService();
 
@@ -26,31 +22,28 @@ const Manifests: FC<ManifestsProps> = ({ setManifest, donePickingManifest }: Man
     getListOfManifests();
   }, []);
 
-  const handleManifestChange = async (pickedManifest: Item<number>) => {
-    const manifestObject = await manifestPickerService.loadManifest(manifests[pickedManifest.value] as string);
-    setManifest(manifestObject);
-    donePickingManifest();
+  const handleManifestChange = async (pickedManifest: number) => {
+    const manifest = await manifestPickerService.loadManifest(manifests[pickedManifest] as string);
+    console.log(manifest);
+    setSelectedManifest(manifest);
   };
-
-  const getItensForSelectInput = () => {
-    return manifests
-    .map(item => parse(item).base)
-    .map((item: string, idx: number) => ({
-      label: item,
-      value: idx
-    }));
-  }
 
   return (
    <Box
    width={'40%'}
-   flexDirection='column'
-   alignSelf='flex-start'>
-     <SelectInput
-       limit={parseInt(process.env.MENU_HEIGHT as string)}
-       items={getItensForSelectInput()}
-       onSelect={handleManifestChange}
-       />
+   borderStyle={isFocused ? 'bold' : 'round'}
+   borderColor={isFocused ? 'red' : 'white'}
+   flexDirection={'column'}
+   alignSelf={'flex-start'}>
+   {
+     manifests.length ?
+       <ManifestList
+        manifests={manifests}
+        handleSelect={handleManifestChange}
+     />
+     :
+       <Text>No manifests available</Text>
+   }
    </Box>
 
   );

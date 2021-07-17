@@ -1,9 +1,8 @@
 import React, { FC } from 'react';
-import SelectInput from 'ink-select-input';
 import { Item } from 'ink-select-input/build/SelectInput';
-import { Box } from 'ink';
 
 import { ICommandDescriptor } from '../../../definitions/ICommandDescriptor';
+import ItemSelectBox from '../item-select-box';
 
 type MenuListProps = {
   handleSelect: (commandId: number) => void;
@@ -30,17 +29,11 @@ const CommandList: FC<MenuListProps> = ({ commandsList, handleSelect, handleHigh
   }
 
  return (
-   <Box
-   width={'40%'}
-   flexDirection='column'
-   alignSelf='flex-end'>
-     <SelectInput
-       limit={parseInt(process.env.MENU_HEIGHT as string)}
-       items={getItensForSelectInput(commandsList)}
-       onSelect={onInputSelected}
-       onHighlight={onInputHighlighted}
-       />
-   </Box>
+   <ItemSelectBox
+     items={getItensForSelectInput(commandsList)}
+     onSelect={onInputSelected}
+     onHighlight={onInputHighlighted}
+   />
  );
 }
 

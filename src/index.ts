@@ -14,9 +14,9 @@ process.env.MENU_HEIGHT = '10';
     if (path) {
       const mps = new ManifestPickerService();
       const manifest = await mps.loadManifest(path);
-
+      console.log(manifest || '');
       // start the frontend
-      renderUi(manifest);
+      renderUi();
     } else {
       renderUi();
     }
