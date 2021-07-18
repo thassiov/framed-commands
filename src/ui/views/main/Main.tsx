@@ -9,6 +9,7 @@ import StatusBar from '../status-bar';
 import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
 import { CommandStatus } from '../../../definitions/CommandStatusEnum';
 import { ICommandDescriptor } from '../../../definitions/ICommandDescriptor';
+import Details from '../details';
 
 export type CommandData = {
   command: ICommandDescriptor;
@@ -67,8 +68,11 @@ const Main: FC = () => {
         width={'50%'}
         flexDirection={'column'}>
         {
-          manifestSelector ?
-            <StatusBar commandData={commandData} />
+          manifestSelector && commandData ?
+            <>
+              <StatusBar commandData={commandData} />
+              <Details commandDescriptor={commandData.command}/>
+            </>
             :
             <StatusBar message={'Select a Manifest to start running commands'} />
         }
@@ -83,6 +87,7 @@ type SelectedManifestCollapsedProps = {
 };
 
 // @TODO also needs better naming
+// @NOTE maybe join this with the status bar to have only one thing above the other components...
 const SelectedManifestCollapsed: FC<SelectedManifestCollapsedProps> = ({ manifestName, unsetSelectedManifest }: SelectedManifestCollapsedProps) => {
   const {isFocused} = useFocus();
 
@@ -98,8 +103,9 @@ const SelectedManifestCollapsed: FC<SelectedManifestCollapsedProps> = ({ manifes
     width={'100%'}
     borderStyle={isFocused ? 'bold' : 'round'}
     borderColor={isFocused ? 'red' : 'white'}
-    flexDirection={'column'}
+    flexDirection={'row'}
     alignSelf={'flex-start'}>
+      <Text>Selected manifest: </Text>
       <Text>{manifestName}</Text>
     </Box>
   )
