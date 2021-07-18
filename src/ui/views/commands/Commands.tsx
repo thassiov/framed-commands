@@ -1,4 +1,4 @@
-import {Box, Text, useFocus} from 'ink';
+import {Box, Text, useFocus, useStderr, useStdout} from 'ink';
 import React, { FC, useEffect, useRef } from 'react';
 import {ICommandDescriptor} from '../../../definitions/ICommandDescriptor';
 import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
@@ -19,6 +19,8 @@ type CommandsProps = {
 // new commandService and this is not very good...
 const Commands: FC<CommandsProps> = ({ manifest, commandDataNotifier }: CommandsProps) => {
   const {isFocused} = useFocus({ autoFocus: true });
+  const { write: writeStdout } = useStdout();
+  const { write: writeStderr } = useStderr();
 
   const commandsService = useRef(new CommandsService(manifest.commands.length ? manifest.commands : []));
 
@@ -28,20 +30,30 @@ const Commands: FC<CommandsProps> = ({ manifest, commandDataNotifier }: Commands
 
   const getCommandsService = () => commandsService.current;
 
-  const handleSelect = () => {
+  const handleSelect = (commandId: number) => {
+    // @TODO handle 'command is running' error. It should prevent the user to run
+    // the same command a second time when the first one is still running.
     if (isFocused) {
-      setTimeout(() => console.log('hey'), 3000);
-      commandDataNotifier();
+      runCommand(commandId);
+      commandDataNotifier(getCommandDataById(commandId));
     }
   }
 
   const handleHightlight = (commandId: number) => {
+    commandDataNotifier(getCommandDataById(commandId));
+  }
+
+  const handleCommandFinishedRunning = (commandId: number) => {
+    commandDataNotifier(getCommandDataById(commandId));
+  }
+
+  const getCommandDataById = (commandId: number) => {
     const commandData = {
       command: manifest.commands[commandId] as ICommandDescriptor,
       status: getCommandsService().getCommandById(commandId).getStatus(),
     };
 
-    commandDataNotifier(commandData);
+    return commandData;
   }
 
   const isCommandListEmpty = () => {
@@ -53,6 +65,14 @@ const Commands: FC<CommandsProps> = ({ manifest, commandDataNotifier }: Commands
   }
 
   const getCommandsList = () => getCommandsService().getCommandList();
+
+  const runCommand = (commandId: number) => {
+    const io = getCommandsService().runCommand(commandId);
+    io.stdout.on('data', (chunk) => writeStdout(chunk.toString()));
+    io.stderr.on('data', (chunk) => writeStderr(chunk.toString()));
+    getCommandsService().listenToCommandEvent(commandId, 'exit', () => handleCommandFinishedRunning(commandId));
+    getCommandsService().listenToCommandEvent(commandId, 'error', () => handleCommandFinishedRunning(commandId));
+  }
 
   return (
    <Box
