@@ -292,7 +292,11 @@ export class Command implements ICommand {
           this.status = CommandStatus.STOPPED;
           break;
         default:
-          this.status = CommandStatus.FINISHED;
+          if (code && code > 0) {
+            this.status = CommandStatus.ERROR;
+          } else {
+            this.status = CommandStatus.FINISHED;
+          }
           break;
       }
 

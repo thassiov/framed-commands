@@ -3,5 +3,6 @@ export enum CommandStatus {
   STOPPED = 'stopped',
   KILLED = 'killed',
   FINISHED = 'finished',
+  ERROR = 'error',
   NOT_STARTED = 'not started',
 }
