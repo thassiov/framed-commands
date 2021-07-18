@@ -301,7 +301,7 @@ export class Command implements ICommand {
       }
 
       this.exitCode = code;
-      logger.debug(`Command ${this.nameAlias} is exiting ${signal ? 'by signal' + signal : '' } with code ${code}`);
+      logger.debug(`Command "${this.nameAlias}" is exiting ${signal ? 'by signal' + signal : '' } with code ${code}`);
     });
 
     this.childProcess?.on('error', (err) => {

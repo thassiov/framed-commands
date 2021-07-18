@@ -33,6 +33,8 @@ const CommandStatus: FC<CommandStatusProps> = ({ commandData }: CommandStatusPro
     }
   });
 
+  const isCommandRunning = () => commandData.status == CommandStatusEnum.RUNNING;
+
   return (
     <Box
       justifyContent="space-between"
@@ -43,7 +45,7 @@ const CommandStatus: FC<CommandStatusProps> = ({ commandData }: CommandStatusPro
       <Box>
         <Text>Status: </Text>
         <Text color={statusColor}>{ commandData.status.toUpperCase() } </Text>
-        { commandData.status == CommandStatusEnum.RUNNING && <Spinner type={'point'} /> }
+        { isCommandRunning() && <Spinner type={'point'} /> }
       </Box>
     </Box>
   );

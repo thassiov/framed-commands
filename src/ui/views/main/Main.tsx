@@ -111,6 +111,7 @@ const SelectedManifestCollapsed: FC<SelectedManifestCollapsedProps> = ({ manifes
   return (
     <Box
     width={'100%'}
+    paddingX={1}
     borderStyle={isFocused ? 'bold' : 'round'}
     borderColor={isFocused ? 'red' : 'white'}
     flexDirection={'row'}
