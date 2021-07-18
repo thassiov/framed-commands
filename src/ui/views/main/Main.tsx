@@ -19,40 +19,35 @@ export type CommandData = {
 const Main: FC = () => {
   const [columns, rows] = useStdoutDimensions();
 
-  // @TODO manifestSelector is trash. needs renaming. Also, this is here just because I didn't want to
-  // put in the render manifest.name ? <things> : <other thing> because `name` is optional.
-  // this is a control state. I need a better way of solving this thing
-  const [manifestSelector, setManifestSelector] = useState('');
-  const [manifest, setManifest] = useState({} as IJSONConfigFile);
+  const [manifest, setManifest] = useState<IJSONConfigFile | undefined>(undefined);
 
   const [commandData, setCommandData] = useState<CommandData | undefined>(undefined);
 
   const setSelectedManifest = (selectedManifest: IJSONConfigFile) => {
     setManifest(selectedManifest);
-    setManifestSelector(selectedManifest.name || 'unnamed');
-    console.log(manifest);
   };
 
   const unsetSelectedManifest = () => {
-    setManifestSelector('');
+    setManifest(undefined);
   }
 
   return (
     <Box
+      marginTop={1}
       width={columns}
-      height={rows}>
+      height={rows / 2}>
       <Box
         paddingX={2}
         width={'50%'}
         flexDirection={'column'}>
         {
-          manifestSelector ?
+          manifest ?
             <Box
               width={'100%'}
               flexDirection={'column'}>
                 <SelectedManifestCollapsed
-                  manifestName={manifestSelector}
-                  unsetSelectedManifest={unsetSelectedManifest}/>
+                  manifestName={manifest.name as string}
+                  unsetSelectedManifest={unsetSelectedManifest} />
                 <Commands manifest={manifest} setCommandData={setCommandData} />
             </Box>
                   :
@@ -68,10 +63,10 @@ const Main: FC = () => {
         width={'50%'}
         flexDirection={'column'}>
         {
-          manifestSelector && commandData ?
+          manifest ?
             <>
               <StatusBar commandData={commandData} />
-              <Details commandDescriptor={commandData.command}/>
+              <Details commandDescriptor={commandData?.command as ICommandDescriptor} />
             </>
             :
             <StatusBar message={'Select a Manifest to start running commands'} />
