@@ -1,13 +1,22 @@
-import {Box} from "ink";
-import React, {FC} from "react";
-import {ICommandDescriptor} from "../../../definitions/ICommandDescriptor";
+import { Box } from "ink";
+import React, { FC, useEffect, useState } from "react";
+import { ICommandDescriptor } from "../../../definitions/ICommandDescriptor";
 import CommandDetails from "../../components/command-details";
+import { CommandData } from "../main/Main";
+
+type Dispatcher = React.Dispatch<React.SetStateAction<CommandData | undefined>>;
 
 type DetailsProps = {
-  commandDescriptor: ICommandDescriptor;
+  commandDataSubscriber: (dispatcher: Dispatcher) => void;
 }
 
-const Details: FC<DetailsProps> = ({ commandDescriptor }: DetailsProps) => {
+const Details: FC<DetailsProps> = ({ commandDataSubscriber }: DetailsProps) => {
+  const [commandData, setCommandData] = useState<CommandData | undefined>(undefined);
+
+  useEffect(() => {
+    commandDataSubscriber(setCommandData);
+  });
+
   return (
     <Box
      width={'100%'}
@@ -16,7 +25,7 @@ const Details: FC<DetailsProps> = ({ commandDescriptor }: DetailsProps) => {
      flexDirection={'column'}
      alignSelf={'flex-start'}
      paddingX={1}>
-      <CommandDetails commandDescriptor={commandDescriptor} />
+      <CommandDetails commandDescriptor={commandData?.command as ICommandDescriptor} />
     </Box>
     );
 };

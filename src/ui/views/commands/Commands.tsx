@@ -1,5 +1,5 @@
 import {Box, Text, useFocus} from 'ink';
-import React, { FC } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import {ICommandDescriptor} from '../../../definitions/ICommandDescriptor';
 import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
 
@@ -12,31 +12,47 @@ import { CommandData } from '../main/Main';
 
 type CommandsProps = {
   manifest: IJSONConfigFile;
-  setCommandData: React.Dispatch<React.SetStateAction<CommandData | undefined>>
+  commandDataNotifier: (commandData?: CommandData) => void;
 };
 
-const Commands: FC<CommandsProps> = ({ manifest, setCommandData }: CommandsProps) => {
+// @NOTE something is causing this to rerender everytime it is focused/unfocused, creating a
+// new commandService and this is not very good...
+const Commands: FC<CommandsProps> = ({ manifest, commandDataNotifier }: CommandsProps) => {
   const {isFocused} = useFocus({ autoFocus: true });
 
-  const commandsService = new CommandsService(manifest.commands.length ? manifest.commands : []);
+  const commandsService = useRef(new CommandsService(manifest.commands.length ? manifest.commands : []));
+
+  useEffect(() => {
+    commandsService.current = new CommandsService(manifest.commands.length ? manifest.commands : []);
+  }, [manifest]);
+
+  const getCommandsService = () => commandsService.current;
 
   const handleSelect = () => {
     if (isFocused) {
       setTimeout(() => console.log('hey'), 3000);
-      setCommandData(undefined);
+      commandDataNotifier();
     }
   }
 
   const handleHightlight = (commandId: number) => {
     const commandData = {
       command: manifest.commands[commandId] as ICommandDescriptor,
-      status: commandsService.getCommandById(commandId).getStatus(),
+      status: getCommandsService().getCommandById(commandId).getStatus(),
     };
 
-    setCommandData(commandData);
+    commandDataNotifier(commandData);
   }
 
-  const getCommandsList = () => commandsService.getCommandList();
+  const isCommandListEmpty = () => {
+    if (!commandsService) {
+      return false;
+    }
+
+    return !!getCommandsService().getCommandList().length;
+  }
+
+  const getCommandsList = () => getCommandsService().getCommandList();
 
   return (
    <Box
@@ -46,7 +62,7 @@ const Commands: FC<CommandsProps> = ({ manifest, setCommandData }: CommandsProps
    flexDirection={'column'}
    alignSelf={'flex-start'}>
    {
-     commandsService.getCommandList().length ?
+      isCommandListEmpty() ?
        <CommandList
          commands={getCommandsList()}
          handleHightlight={handleHightlight}

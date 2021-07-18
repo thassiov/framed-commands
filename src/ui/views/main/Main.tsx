@@ -10,6 +10,9 @@ import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
 import { CommandStatus } from '../../../definitions/CommandStatusEnum';
 import { ICommandDescriptor } from '../../../definitions/ICommandDescriptor';
 import Details from '../details';
+import CommandDataObserver from '../../../utils/CommandDataObserver';
+
+type Dispatcher = React.Dispatch<React.SetStateAction<CommandData | undefined>>;
 
 export type CommandData = {
   command: ICommandDescriptor;
@@ -20,8 +23,17 @@ const Main: FC = () => {
   const [columns, rows] = useStdoutDimensions();
 
   const [manifest, setManifest] = useState<IJSONConfigFile | undefined>(undefined);
+  // this commandDataObservable exists because storing this data in react state would trigger
+  // rerenders all the time we hightlighted a new item from the list.
+  const commandDataObservable = new CommandDataObserver();
 
-  const [commandData, setCommandData] = useState<CommandData | undefined>(undefined);
+  const commandDataNotifier = (a?: CommandData) => {
+    commandDataObservable.notify(a);
+  }
+
+  const commandDataSubscriber = (a: Dispatcher) => {
+    commandDataObservable.subscribe(a);
+  }
 
   const setSelectedManifest = (selectedManifest: IJSONConfigFile) => {
     setManifest(selectedManifest);
@@ -29,6 +41,7 @@ const Main: FC = () => {
 
   const unsetSelectedManifest = () => {
     setManifest(undefined);
+    // clear observable
   }
 
   return (
@@ -48,7 +61,9 @@ const Main: FC = () => {
                 <SelectedManifestCollapsed
                   manifestName={manifest.name as string}
                   unsetSelectedManifest={unsetSelectedManifest} />
-                <Commands manifest={manifest} setCommandData={setCommandData} />
+                <Commands
+                  manifest={manifest}
+                  commandDataNotifier={commandDataNotifier} />
             </Box>
                   :
             <Box
@@ -65,8 +80,8 @@ const Main: FC = () => {
         {
           manifest ?
             <>
-              <StatusBar commandData={commandData} />
-              <Details commandDescriptor={commandData?.command as ICommandDescriptor} />
+              <StatusBar commandDataSubscriber={commandDataSubscriber} />
+              <Details commandDataSubscriber={commandDataSubscriber} />
             </>
             :
             <StatusBar message={'Select a Manifest to start running commands'} />
