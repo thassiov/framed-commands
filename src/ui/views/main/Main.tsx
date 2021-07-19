@@ -9,7 +9,6 @@ import StatusBar from '../status-bar';
 import { IJSONConfigFile } from '../../../definitions/IJSONConfigFile';
 import { CommandStatus } from '../../../definitions/CommandStatusEnum';
 import { ICommandDescriptor } from '../../../definitions/ICommandDescriptor';
-import Details from '../details';
 import CommandDataObserver from '../../../utils/CommandDataObserver';
 
 type Dispatcher = React.Dispatch<React.SetStateAction<CommandData | undefined>>;
@@ -58,34 +57,32 @@ const Main: FC = () => {
             <Box
               width={'100%'}
               flexDirection={'row'}>
-                <SelectedManifestCollapsed
-                  manifestName={manifest.name as string}
-                  unsetSelectedManifest={unsetSelectedManifest} />
-                <StatusBar commandDataSubscriber={commandDataSubscriber} />
+              <SelectedManifestCollapsed
+                manifestName={manifest.name as string}
+                unsetSelectedManifest={unsetSelectedManifest} />
+              <StatusBar commandDataSubscriber={commandDataSubscriber} />
             </Box>
                   :
             <Box
               width={'100%'}
               flexDirection={'row'}>
-                <Manifests setSelectedManifest={setSelectedManifest} />
-                <StatusBar message={'Select a Manifest to start running commands'} />
+              <Manifests setSelectedManifest={setSelectedManifest} />
+              <StatusBar message={'Select a Manifest to start running commands'} />
             </Box>
         }
       </Box>
-      <Box
-        paddingX={2}
-        width={'100%'}
-        flexDirection={'row'}>
-        {
-          manifest &&
-            <>
+      {
+        manifest &&
+          <Box
+            paddingX={2}
+            width={'100%'}
+            flexDirection={'row'}>
                 <Commands
                   manifest={manifest}
-                  commandDataNotifier={commandDataNotifier} />
-              <Details commandDataSubscriber={commandDataSubscriber} />
-            </>
-        }
-      </Box>
+                  commandDataNotifier={commandDataNotifier}
+                  commandDataSubscriber={commandDataSubscriber} />
+          </Box>
+      }
     </Box>
   );
 }
