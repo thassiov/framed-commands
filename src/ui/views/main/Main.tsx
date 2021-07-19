@@ -48,43 +48,42 @@ const Main: FC = () => {
     <Box
       marginTop={1}
       width={columns}
-      height={rows / 2}>
+      height={rows / 2}
+      flexDirection={'column'}>
       <Box
         paddingX={2}
-        width={'50%'}
-        flexDirection={'column'}>
+        width={'100%'}>
         {
           manifest ?
             <Box
               width={'100%'}
-              flexDirection={'column'}>
+              flexDirection={'row'}>
                 <SelectedManifestCollapsed
                   manifestName={manifest.name as string}
                   unsetSelectedManifest={unsetSelectedManifest} />
-                <Commands
-                  manifest={manifest}
-                  commandDataNotifier={commandDataNotifier} />
+                <StatusBar commandDataSubscriber={commandDataSubscriber} />
             </Box>
                   :
             <Box
               width={'100%'}
-              flexDirection={'column'}>
+              flexDirection={'row'}>
                 <Manifests setSelectedManifest={setSelectedManifest} />
+                <StatusBar message={'Select a Manifest to start running commands'} />
             </Box>
         }
       </Box>
       <Box
         paddingX={2}
-        width={'50%'}
-        flexDirection={'column'}>
+        width={'100%'}
+        flexDirection={'row'}>
         {
-          manifest ?
+          manifest &&
             <>
-              <StatusBar commandDataSubscriber={commandDataSubscriber} />
+                <Commands
+                  manifest={manifest}
+                  commandDataNotifier={commandDataNotifier} />
               <Details commandDataSubscriber={commandDataSubscriber} />
             </>
-            :
-            <StatusBar message={'Select a Manifest to start running commands'} />
         }
       </Box>
     </Box>
