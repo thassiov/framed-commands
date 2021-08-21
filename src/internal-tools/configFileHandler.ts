@@ -1,34 +1,24 @@
-import { extname } from 'path';
-
 import { IJSONConfigFile } from '../definitions/IJSONConfigFile';
-import {yamlToJson} from './contentTypeConverter';
+import { yamlToJson } from './contentTypeConverter';
 import { fileLoader } from './fileLoader';
-import {isValidConfigFile} from './isValidConfigFile';
-import { JSONParser } from './JSONParser';
+import { isValidConfigFile } from './isValidConfigFile';
 
 export async function configFileHandler(configFilePath: string): Promise<IJSONConfigFile> {
-  const file = await fileLoader(configFilePath);
+  const fileContents = await fileLoader(configFilePath);
+  let config = await yamlToJson(fileContents);
 
-  let result;
-  if (hasYamlExtension(configFilePath)) {
-    result = await yamlToJson(file.toString());
-  } else {
-    result = JSONParser(file.toString());
+  // for when we have a yaml
+  if (typeof config == 'string') {
+    try {
+      config = JSON.parse(config);
+    } catch (jsonError) {
+      throw new Error(`The contents of ${configFilePath} do not follow the correct config structure ${fileContents}`);
+    }
   }
 
-  if (!isValidConfigFile(result)) {
+  if (!isValidConfigFile(config)) {
     throw new Error("The config provided is invalid.\nPlease refer to the documentation for more info about the config's structure");
   }
 
-  return result as IJSONConfigFile;
-}
-
-function hasYamlExtension(filePath: string): boolean {
-  const ext = extname(filePath);
-
-  if(ext.endsWith('yaml') || ext.endsWith('yml')) {
-    return true;
-  }
-
-  return false;
+  return config as IJSONConfigFile;
 }
