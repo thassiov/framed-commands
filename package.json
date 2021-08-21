@@ -1,19 +1,25 @@
 {
-  "name": "tuizer",
-  "version": "0.3.0",
-  "description": "Make a TUI app using a config file",
-  "main": "./src/index.ts",
-  "bin": {
-    "tuizer": "./dist/index.js"
+  "name": "run-the-sheet",
+  "version": "0.1.0",
+  "description": "Do you keep cheat sheets of commands? Maybe you can run them with this",
+  "files": [
+    "./dist/run-the-sheet.js"
+  ],
+  "bin": "./dist/run-the-sheet.js",
+  "engines": {
+    "node": ">=10"
   },
   "scripts": {
-    "build": "tsc",
+    "start": "ts-node ./src/index.ts",
     "dev": "nodemon",
     "dev:stdin": "nodemon -I",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
-    "start": "ts-node ./src/index.ts",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "compile": "tsc --project ./tsconfig.production.json",
+    "bundle": "esbuild dist/index.js --bundle --minify --platform=node --target=node10 --outfile=dist/run-the-sheet.js",
+    "package": "pkg ./dist/run-the-sheet.js --targets node12-linux-x64 --output ./dist/run-the-sheet",
+    "build": "npm run compile && npm run bundle"
   },
   "author": {
     "name": "Thassio Victor",
@@ -21,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thassiov/tuizer.git"
+    "url": "git+https://github.com/thassiov/run-the-sheet.git"
   },
   "keywords": [
     "tui",
@@ -32,12 +38,13 @@
     "child_process",
     "utility",
     "typescript",
-    "spawn"
+    "spawn",
+    "cheatsheet"
   ],
   "bugs": {
-    "url": "https://github.com/thassiov/tuizer/issues"
+    "url": "https://github.com/thassiov/run-the-sheet/issues"
   },
-  "homepage": "https://github.com/thassiov/tuizer#readme",
+  "homepage": "https://github.com/thassiov/run-the-sheet#readme",
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.1",
@@ -52,9 +59,9 @@
     "react": "^17.0.2"
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
     "@types/inquirer": "^7.3.1",
     "@types/jest": "25.1.4",
-    "@types/chalk": "^2.2.0",
     "@types/js-yaml": "^4.0.1",
     "@types/node": "^14.17.2",
     "@types/react": "^17.0.8",
@@ -89,7 +96,7 @@
     "watch": [
       "src"
     ],
-    "exec": "npm start",
+    "exec": "npm start -- ./examples/k3d-kubernetes.yml",
     "ext": "ts,tsx"
   },
   "eslintConfig": {

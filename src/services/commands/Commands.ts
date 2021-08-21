@@ -3,7 +3,7 @@ import { ICommand } from '../../definitions/ICommand';
 import { CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
 import { Command } from '../../models';
 
-interface IOutput {
+export interface IOutput {
   stdout: Readable;
   stderr: Readable;
 }
@@ -28,7 +28,7 @@ export default class CommandsService {
    * Executes a given command based on its `id`
    *
    * As the command is run, its stdout and stderr is piped
-   * to tuizer's own logger.
+   * to run-the-sheet's own logger.
    * When the execution exits, the following information is logged:
    * - PID,
    * - status,

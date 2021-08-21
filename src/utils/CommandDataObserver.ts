@@ -1,5 +1,5 @@
 import React from "react";
-import {CommandData} from "../ui/views/main/Main";
+import { CommandData } from "../ui/views/main/Main";
 
 type Dispatcher = React.Dispatch<React.SetStateAction<CommandData | undefined>>;
 

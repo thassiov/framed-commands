@@ -1,7 +1,5 @@
-// import {join} from "path";
-//
-// export enum Defaults {
-//   CONFIG_DIRECTORY_NAME = '.tuizer',
-//   CONFIG_LOCATION_PARENT_PATH = process.env.HOME,
-//   config_location_full_path = (() => join(CONFIG_LOCATION_PARENT_PATH, CONFIG_DIRECTORY_NAME))(),
-// }
+import { join } from "path";
+
+export const CONFIG_DIRECTORY_DEFAULT_NAME = '.run-the-sheet';
+export const CONFIG_DIRECTORY_DEFAULT_LOCATION_PARENT_PATH = process.env.HOME as string;
+export const CONFIG_DIRECTORY_DEFAULT_PATH = join(CONFIG_DIRECTORY_DEFAULT_LOCATION_PARENT_PATH, CONFIG_DIRECTORY_DEFAULT_NAME);

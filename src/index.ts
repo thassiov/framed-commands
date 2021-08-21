@@ -1,27 +1,22 @@
 #!/usr/bin/env node
 
 import { logger } from './internal-tools/logger';
-import { getFilePathFromCliArgs } from './internal-tools/getFilePathFromCliArgs';
+import { getSheetFilePath } from './cli';
 import { renderUi } from './ui';
-import ManifestPickerService from './services/manifest-picker';
+import { manifestLoader } from './services/manifest-loader';
 
 // This represents the number of max items in the menu list
 process.env.MENU_HEIGHT = '10';
 
 (async () => {
-  try {
-    const path = getFilePathFromCliArgs(process.argv);
-    if (path) {
-      const mps = new ManifestPickerService();
-      const manifest = await mps.loadManifest(path);
-      console.log(manifest || '');
-      // start the frontend
-      renderUi();
-    } else {
-      renderUi();
-    }
-
-  } catch (error) {
-    logger.error(error);
-  }
-})();
+  const path = getSheetFilePath(process.argv);
+  const manifest = await manifestLoader(path);
+  manifest;
+  // start the frontend
+  renderUi(manifest);
+})().catch((err) => {
+  logger.error(err);
+  logger.error(err.message);
+  logger.error('Exiting...');
+  process.exit(err.code);
+});
