@@ -4,12 +4,12 @@ import {CommandParameter} from "./ICommandDescriptor";
 import {ICommandIO} from "./ICommandIO";
 import {IHistoryEntry} from "./IHistoryEntry";
 
-interface ICommandEventAccessor {
+type ICommandEventAccessor = {
   onEvent(event: string, listener: () => void): any;
   removeAllEventListeners(event?: string): void;
 }
 
-interface ICommandInfoAccessor {
+type ICommandInfoAccessor = {
   isRunning(): boolean;
   getStatus(): CommandStatus;
   getPid(): number | undefined;
@@ -25,11 +25,11 @@ interface ICommandInfoAccessor {
   getHistoryDump(): Array<IHistoryEntry>;
 }
 
-interface ICommandProcessRunner {
+type ICommandProcessRunner = {
   run(): ICommandIO;
 }
 
-interface ICommandProcessStopper {
+type ICommandProcessStopper = {
   stop(): void;
   kill(): void;
 }

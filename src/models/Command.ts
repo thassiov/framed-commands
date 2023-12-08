@@ -37,7 +37,7 @@ export class Command implements ICommand {
   // The command's exit code
   private exitCode: number | null;
 
-  // The list of events emmited by the command's process
+  // Command's output
   private history: Array<IHistoryEntry>;
 
   // The instance of the command's process
@@ -69,6 +69,9 @@ export class Command implements ICommand {
 
     logger.debug(`Launching command: ${ this.command } ${ resolvedParameters.join(' ') }`);
 
+    this.startDate = new Date();
+    this.status = CommandStatus.RUNNING;
+
     this.childProcess = spawn(this.command, resolvedParameters, {
       cwd: process.cwd(),
       uid: this.runAs.uid,
@@ -80,9 +83,7 @@ export class Command implements ICommand {
       ]
     });
 
-    this.startDate = new Date();
     this.pid = this.childProcess.pid;
-    this.status = CommandStatus.RUNNING;
 
     this.eventsListener();
     this.registerIoEvent();
@@ -268,6 +269,8 @@ export class Command implements ICommand {
 
       // gets the first '$' that is not escaped
       const replaceRule = new RegExp(/(?<!\\)\$/);
+
+      // @TODO test to see if the answer is provided
 
       if (param.parameter.match(replaceRule)) {
         return param.parameter.replace(replaceRule, param.answer as string);

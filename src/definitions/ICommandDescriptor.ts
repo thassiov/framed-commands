@@ -2,7 +2,7 @@ enum InputTypes {
   STRING="string"
 }
 
-export interface InputParameter {
+export type InputParameter = {
   type: InputTypes,
   parameter: string,
   defaultValue?: unknown,
@@ -13,7 +13,7 @@ export interface InputParameter {
 
 export type CommandParameter = string | InputParameter;
 
-export interface ICommandDescriptor {
+export type ICommandDescriptor = {
   command: string;
   parameters: Array<CommandParameter>;
   description: string;
