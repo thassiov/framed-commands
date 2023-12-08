@@ -1,6 +1,5 @@
-import chalk from 'chalk';
+import pino from 'pino';
 
-export const logger = {
-  ...console,
-  debug: (...args:[unknown]): void => console.debug(...args.map(arg => chalk.dim(arg))),
-};
+const logger = pino();
+
+export { logger };
