@@ -20,3 +20,6 @@ export class ParsingError extends CustomError {
   name = 'ParsingError';
 }
 
+export class ConfigError extends CustomError {
+  name = 'ConfigError';
+}

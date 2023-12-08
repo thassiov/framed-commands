@@ -1,8 +1,8 @@
 import { resolve } from 'path';
 import {IJSONConfigFile} from '../../definitions/IJSONConfigFile';
-import {configFileHandler} from '../../internal-tools/configFileHandler';
 
 import { directoryLoader } from '../../internal-tools/directoryLoader';
+import { configFileHandler } from '../../utils/configs/configFileHandler';
 
 export default class ManifestPicker {
   // Later I'll pass configs in this constructor
