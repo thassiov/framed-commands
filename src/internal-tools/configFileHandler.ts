@@ -4,7 +4,7 @@ import { IJSONConfigFile } from '../definitions/IJSONConfigFile';
 import {yamlToJson} from './contentTypeConverter';
 import { fileLoader } from './fileLoader';
 import {isValidConfigFile} from './isValidConfigFile';
-import { JSONParser } from './JSONParser';
+import { json as jsonParser } from '../utils/parsers';
 
 export async function configFileHandler(configFilePath: string): Promise<IJSONConfigFile> {
   const file = await fileLoader(configFilePath);
@@ -13,7 +13,7 @@ export async function configFileHandler(configFilePath: string): Promise<IJSONCo
   if (hasYamlExtension(configFilePath)) {
     result = await yamlToJson(file.toString());
   } else {
-    result = JSONParser(file.toString());
+    result = jsonParser(file.toString());
   }
 
   if (!isValidConfigFile(result)) {
