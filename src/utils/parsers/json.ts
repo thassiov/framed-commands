@@ -2,14 +2,7 @@ import { z } from 'zod';
 
 import { logger } from "../../internal-tools/logger";
 import { ParsingError } from "../errors";
-
-// validates json [https://zod.dev/?id=json-type]
-const literalSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
-type Literal = z.infer<typeof literalSchema>;
-type Json = Literal | { [key: string]: Json } | Json[];
-const jsonSchema: z.ZodType<Json> = z.lazy(() =>
-  z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)])
-);
+import { jsonSchema } from './jsonSchema';
 
 type parsingResultType = z.infer<typeof jsonSchema>;
 

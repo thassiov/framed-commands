@@ -1,17 +1,16 @@
 import { extname } from 'path';
 
 import { IJSONConfigFile } from '../definitions/IJSONConfigFile';
-import {yamlToJson} from './contentTypeConverter';
 import { fileLoader } from './fileLoader';
 import {isValidConfigFile} from './isValidConfigFile';
-import { json as jsonParser } from '../utils/parsers';
+import { json as jsonParser, yaml as yamlParser } from '../utils/parsers';
 
 export async function configFileHandler(configFilePath: string): Promise<IJSONConfigFile> {
   const file = await fileLoader(configFilePath);
 
   let result;
   if (hasYamlExtension(configFilePath)) {
-    result = await yamlToJson(file.toString());
+    result = yamlParser(file.toString());
   } else {
     result = jsonParser(file.toString());
   }
