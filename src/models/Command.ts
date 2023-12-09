@@ -5,8 +5,8 @@ import { CommandParameter, ICommandDescriptor } from '../definitions/ICommandDes
 import { CommandStatus } from '../definitions/CommandStatusEnum';
 import { ICommandIO } from '../definitions/ICommandIO';
 import { HistoryEntryType, IHistoryEntry } from '../definitions/IHistoryEntry';
-import { newId } from '../internal-tools/idGenerator';
 import { logger } from '../utils/logger';
+import { idGenerator } from '../utils/idGenerator';
 
 /**
  * The command is instantiated by providing the command's descriptor object
@@ -47,7 +47,7 @@ export class Command implements ICommand {
   private startDate: Date | undefined;
 
   constructor(private readonly commandDescriptor: ICommandDescriptor) {
-    this.nameAlias = this.commandDescriptor.nameAlias || newId();
+    this.nameAlias = this.commandDescriptor.nameAlias || idGenerator();
     logger.debug(`Creating command ${this.nameAlias}`);
     this.description = this.commandDescriptor.description;
     this.command = this.commandDescriptor.command;
