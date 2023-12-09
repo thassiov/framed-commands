@@ -1,1 +1,5 @@
-export { Command } from './Command';
+import { Command } from './command';
+
+export {
+  Command,
+};

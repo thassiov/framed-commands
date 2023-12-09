@@ -1,12 +1,12 @@
 import { UserInfo, userInfo } from 'os';
 import { ChildProcess, spawn } from "child_process";
-import { ICommand } from '../definitions/ICommand';
-import { CommandParameter, ICommandDescriptor } from '../definitions/ICommandDescriptor';
-import { CommandStatus } from '../definitions/CommandStatusEnum';
-import { ICommandIO } from '../definitions/ICommandIO';
-import { HistoryEntryType, IHistoryEntry } from '../definitions/IHistoryEntry';
-import { logger } from '../utils/logger';
-import { idGenerator } from '../utils/idGenerator';
+import { ICommand } from '../../definitions/ICommand';
+import { CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
+import { CommandStatus } from '../../definitions/CommandStatusEnum';
+import { ICommandIO } from '../../definitions/ICommandIO';
+import { HistoryEntryType, IHistoryEntry } from '../../definitions/IHistoryEntry';
+import { logger } from '../../utils/logger';
+import { idGenerator } from '../../utils/idGenerator';
 
 /**
  * The command is instantiated by providing the command's descriptor object
