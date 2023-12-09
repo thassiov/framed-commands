@@ -96,7 +96,6 @@ export class Command implements ICommand {
       this.eventsListener();
       this.registerIoEvent();
     } catch (err) {
-      console.log(err);
       logger.error('A problem occurred when running the process', { data: { pid: this.pid, command: this.command } });
       throw new ProcessError('A problem occurred when running the process', { data: { pid: this.pid, command: this.command }.toString() }, err as Error);
     }
