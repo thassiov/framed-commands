@@ -1,10 +1,14 @@
 {
-  "name": "tuizer",
-  "version": "0.3.0",
+  "name": "cast",
+  "version": "0.1.0",
   "description": "Make a TUI app using a config file",
+  "engines": {
+    "npm": ">=10.0.0",
+    "node": ">=20.0.0"
+  },
   "main": "./src/index.ts",
   "bin": {
-    "tuizer": "./dist/index.js"
+    "cast": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -21,7 +25,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thassiov/tuizer.git"
+    "url": "git+https://github.com/thassiov/cast.git"
   },
   "keywords": [
     "tui",
@@ -35,40 +39,28 @@
     "spawn"
   ],
   "bugs": {
-    "url": "https://github.com/thassiov/tuizer/issues"
+    "url": "https://github.com/thassiov/cast/issues"
   },
-  "homepage": "https://github.com/thassiov/tuizer#readme",
+  "homepage": "https://github.com/thassiov/cast#readme",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^4.1.1",
-    "ink": "^3.2.0",
-    "ink-form": "^1.0.2",
-    "ink-select-input": "^4.2.2",
-    "ink-spinner": "^4.0.3",
-    "ink-use-stdout-dimensions": "^1.0.5",
-    "inquirer": "^8.1.0",
-    "inquirer-search-list": "^1.2.6",
     "js-yaml": "^4.1.0",
     "pino": "^8.16.2",
-    "react": "^17.0.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/chalk": "^2.2.0",
-    "@types/inquirer": "^7.3.1",
-    "@types/jest": "25.1.4",
+    "@types/jest": "29.5.11",
     "@types/js-yaml": "^4.0.1",
-    "@types/node": "^14.17.2",
-    "@types/react": "^17.0.8",
-    "@typescript-eslint/eslint-plugin": "^4.25.0",
-    "@typescript-eslint/parser": "^4.25.0",
-    "eslint": "^6.8.0",
+    "@types/node": "^20.10.4",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "eslint": "^8.55.0",
     "eslint-plugin-react": "^7.23.2",
-    "jest": "^25.5.4",
-    "nodemon": "^2.0.7",
-    "ts-jest": "^25.2.1",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.9.5"
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "jest": {
     "roots": [
