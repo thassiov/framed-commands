@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 import { promises as fsp } from 'fs';
-import { logger } from '../../internal-tools/logger';
 import { ParsingError, SystemError } from '../errors';
+import { logger } from '../logger';
 
 const pathStringSchema = z.string();
 

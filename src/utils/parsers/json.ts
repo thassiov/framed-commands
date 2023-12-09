@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { logger } from "../../internal-tools/logger";
 import { ParsingError } from "../errors";
+import { logger } from '../logger';
 import { jsonSchema } from './jsonSchema';
 
 type parsingResultType = z.infer<typeof jsonSchema>;

@@ -5,8 +5,8 @@ import { CommandParameter, ICommandDescriptor } from '../definitions/ICommandDes
 import { CommandStatus } from '../definitions/CommandStatusEnum';
 import { ICommandIO } from '../definitions/ICommandIO';
 import { HistoryEntryType, IHistoryEntry } from '../definitions/IHistoryEntry';
-import { logger } from '../internal-tools/logger';
 import { newId } from '../internal-tools/idGenerator';
+import { logger } from '../utils/logger';
 
 /**
  * The command is instantiated by providing the command's descriptor object

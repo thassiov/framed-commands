@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { load } from 'js-yaml';
 
-import { logger } from '../../internal-tools/logger';
 import { ParsingError } from '../errors';
 import { jsonSchema } from './jsonSchema';
+import { logger } from '../logger';
 
 type parsingResultType = z.infer<typeof jsonSchema>;
 
