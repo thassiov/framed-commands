@@ -18,7 +18,6 @@ export async function fileLoader(filePath: pathStringType): Promise<Buffer> {
   } catch (err) {
     logger.error('Could not read input file', { data: filePath });
     const message = `Could not read input file: ${(err as Error).message}`;
-    console.log(message);
     throw new SystemError(message, { data: filePath }, err as Error);
   }
 }

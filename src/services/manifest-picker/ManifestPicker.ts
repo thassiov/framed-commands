@@ -1,8 +1,8 @@
 import { resolve } from 'path';
 import { IConfigFile } from '../../definitions/IConfigFile';
 
-import { directoryLoader } from '../../internal-tools/directoryLoader';
 import { configFileHandler } from '../../utils/configs/configFileHandler';
+import { directoryLoader } from '../../utils/fs/directoryLoader';
 
 export default class ManifestPicker {
   // Later I'll pass configs in this constructor
