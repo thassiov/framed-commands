@@ -23,3 +23,11 @@ export class ParsingError extends CustomError {
 export class ConfigError extends CustomError {
   name = 'ConfigError';
 }
+
+export class ValidationError extends CustomError {
+  name = 'ValidationError';
+}
+
+export class SystemError extends CustomError {
+  name = 'SystemError';
+}

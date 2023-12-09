@@ -2,9 +2,9 @@ import { extname } from 'path';
 import { z } from 'zod';
 
 import { json as jsonParser, yaml as yamlParser } from '../parsers';
-import { fileLoader } from '../../internal-tools/fileLoader';
 import { ConfigError, ParsingError } from '../errors';
 import { IConfigFile, configFileSchema } from '../../definitions/IConfigFile';
+import { fileLoader } from '../fs/fileLoader';
 
 const pathStringSchema = z.string();
 

@@ -1,5 +1,5 @@
 import { IConfigFile } from '../../definitions/IConfigFile';
-import { fileLoader } from '../../internal-tools/fileLoader';
+import { fileLoader } from '../fs/fileLoader';
 import { configFileHandler } from './configFileHandler';
 
 jest.mock('../../internal-tools/fileLoader');
