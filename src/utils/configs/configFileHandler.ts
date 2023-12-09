@@ -3,15 +3,14 @@ import { z } from 'zod';
 
 import { json as jsonParser, yaml as yamlParser } from '../parsers';
 import { fileLoader } from '../../internal-tools/fileLoader';
-import { isValidConfigFile } from '../../internal-tools/isValidConfigFile';
-import { IJSONConfigFile } from '../../definitions/IJSONConfigFile';
 import { ConfigError, ParsingError } from '../errors';
+import { IConfigFile, configFileSchema } from '../../definitions/IConfigFile';
 
 const pathStringSchema = z.string();
 
 type pathStringType = z.infer<typeof pathStringSchema>;
 
-export async function configFileHandler(configFilePath: pathStringType): Promise<IJSONConfigFile> {
+export async function configFileHandler(configFilePath: pathStringType): Promise<IConfigFile> {
   if (!pathStringSchema.safeParse(configFilePath).success) {
     throw new ParsingError('Could not parse config file path', { data: configFilePath });
   }
@@ -25,11 +24,11 @@ export async function configFileHandler(configFilePath: pathStringType): Promise
     result = jsonParser(file.toString());
   }
 
-  if (!isValidConfigFile(result)) {
+  if (!configFileSchema.safeParse(result).success) {
     throw new ConfigError("The configuration provided does not follow the allowed schema", { data: JSON.stringify(result) });
   }
 
-  return result as IJSONConfigFile;
+  return result as IConfigFile;
 }
 
 function hasYamlExtension(filePath: string): boolean {

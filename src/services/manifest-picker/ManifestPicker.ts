@@ -1,5 +1,5 @@
 import { resolve } from 'path';
-import {IJSONConfigFile} from '../../definitions/IJSONConfigFile';
+import { IConfigFile } from '../../definitions/IConfigFile';
 
 import { directoryLoader } from '../../internal-tools/directoryLoader';
 import { configFileHandler } from '../../utils/configs/configFileHandler';
@@ -31,7 +31,7 @@ export default class ManifestPicker {
     return content.map((config) => resolve(configsLocation, config));
   }
 
-  async loadManifest(configFilePath: string): Promise<Promise<IJSONConfigFile>> {
+  async loadManifest(configFilePath: string): Promise<Promise<IConfigFile>> {
     return await configFileHandler(configFilePath);
   }
 }

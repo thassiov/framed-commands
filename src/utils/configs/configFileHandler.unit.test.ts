@@ -1,4 +1,4 @@
-import { IJSONConfigFile } from '../../definitions/IJSONConfigFile';
+import { IConfigFile } from '../../definitions/IConfigFile';
 import { fileLoader } from '../../internal-tools/fileLoader';
 import { configFileHandler } from './configFileHandler';
 
@@ -19,7 +19,7 @@ describe('Config file handler', () => {
         ],
       },
     ],
-  } as IJSONConfigFile ;
+  } as IConfigFile ;
 
   const mockYamlConfigFileStructure = `
 ---
