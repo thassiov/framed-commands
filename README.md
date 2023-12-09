@@ -1,14 +1,14 @@
 <div align="center">
-  <img src="tuizer-demo.gif">
-  <h5>Make a TUI app using a config file</h5>
+  <img src="cast-demo.gif">
+  <h5>Make a tui app using a config file</h5>
 </div>
 
-# tuizer
+# cast
 
 ## Install
 
 ```bash
-npm install -g tuizer
+npm install -g cast
 ```
 
 ## What is does
@@ -25,26 +25,26 @@ If I find a command that I want to use, but don't do it very often and don't wan
 
 ## How it works
 
-`tuizer` can be fed a JSON or YAML file directly or, if no file is provided, it searches for the `$HOME/.tuizer` directory for files.
+`cast` can be fed a JSON or YAML file directly or, if no file is provided, it searches for the `$HOME/.cast` directory for files.
 
 ```bash
 # the '.json' extension is optional if the format is json
-tuizer ./some-json-file.json
-tuizer ./some-json-file
+cast ./some-json-file.json
+cast ./some-json-file
 
 or
 
 # the '.yaml' or '.yml' extension is required if the format is yaml
-tuizer ./some-yaml-file.yaml
+cast ./some-yaml-file.yaml
 
 # or
 
-# this will launch a selection menu with the `$HOME/.tuizer`'s content
-tuizer
+# this will launch a selection menu with the `$HOME/.cast`'s content
+cast
 
 ```
 
-Make sure to create the `$HOME/.tuizer` directory and put your configs there if you don't want to provide them as argument everytime.
+Make sure to create the `$HOME/.cast` directory and put your configs there if you don't want to provide them as argument everytime.
 
 ## The config file
 
@@ -93,7 +93,7 @@ The `parameters` property can receive two types of elements: `strings` and `inpu
 #### The `input object` structure
 
 The idea behind the structure is that there might be commands that need user input to *set parameters*.
-This *does not* enable the user to interact with the application run by `tuizer`, but only set the parameters for it to run.
+This *does not* enable the user to interact with the application run by `cast`, but only set the parameters for it to run.
 
 ```json
 {

@@ -1,7 +1,7 @@
 {
   "name": "cast",
   "version": "0.1.0",
-  "description": "Make a TUI app using a config file",
+  "description": "Make a tui app using a config file",
   "engines": {
     "npm": ">=10.0.0",
     "node": ">=20.0.0"
