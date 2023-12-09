@@ -1,8 +1,18 @@
 import {UserInfo} from "os";
+import { Readable, Writable } from "stream";
+import { z } from "zod";
 import {CommandStatus} from "./CommandStatusEnum";
 import {CommandParameter} from "./ICommandDescriptor";
-import {ICommandIO} from "./ICommandIO";
 import {IHistoryEntry} from "./IHistoryEntry";
+
+export const runCommandArgsSchema = z.object({
+  writeOutput: z.instanceof(Writable),
+  writeError: z.instanceof(Writable),
+  readInput: z.instanceof(Readable),
+});
+
+export type RunCommandStreams = z.infer<typeof runCommandArgsSchema>;
+
 
 type ICommandEventAccessor = {
   onEvent(event: string, listener: () => void): any;
@@ -26,7 +36,7 @@ type ICommandInfoAccessor = {
 }
 
 type ICommandProcessRunner = {
-  run(): ICommandIO;
+  run(): void;
 }
 
 type ICommandProcessStopper = {

@@ -31,3 +31,7 @@ export class ValidationError extends CustomError {
 export class SystemError extends CustomError {
   name = 'SystemError';
 }
+
+export class ProcessError extends CustomError {
+  name = 'ProcessError';
+}

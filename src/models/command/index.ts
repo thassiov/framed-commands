@@ -1,12 +1,12 @@
 import { UserInfo, userInfo } from 'os';
 import { ChildProcess, spawn } from "child_process";
-import { ICommand } from '../../definitions/ICommand';
-import { CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
+import { ICommand, runCommandArgsSchema, RunCommandStreams } from '../../definitions/ICommand';
+import { commandDescriptorSchema, CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
 import { CommandStatus } from '../../definitions/CommandStatusEnum';
-import { ICommandIO } from '../../definitions/ICommandIO';
 import { HistoryEntryType, IHistoryEntry } from '../../definitions/IHistoryEntry';
 import { logger } from '../../utils/logger';
 import { idGenerator } from '../../utils/idGenerator';
+import { ProcessError, ValidationError } from '../../utils/errors';
 
 /**
  * The command is instantiated by providing the command's descriptor object
@@ -46,12 +46,26 @@ export class Command implements ICommand {
   // The datetime when the command was run (not instantiated)
   private startDate: Date | undefined;
 
-  constructor(private readonly commandDescriptor: ICommandDescriptor) {
+  // The streams used for communication with the process
+  private streams: RunCommandStreams;
+
+  constructor(private readonly commandDescriptor: ICommandDescriptor, streams: RunCommandStreams) {
+    if (!commandDescriptorSchema.safeParse(commandDescriptor).success) {
+      logger.error('Cound not create command instance: command descriptor not provided', { data: JSON.stringify(commandDescriptor) });
+      throw new ValidationError('Could not create command instance: command descriptor not provided', { data: JSON.stringify(commandDescriptor) });
+    }
+
+    if (!runCommandArgsSchema.safeParse(streams).success) {
+      logger.error('Could not create command instance: IO streams not provided', { data: streams.toString() });
+      throw new ValidationError('Could not create command instance: IO streams not provided', { data: streams.toString() });
+    }
+
+    this.streams = streams;
     this.nameAlias = this.commandDescriptor.nameAlias || idGenerator();
     logger.debug(`Creating command ${this.nameAlias}`);
-    this.description = this.commandDescriptor.description;
+    this.description = this.commandDescriptor.description || '';
     this.command = this.commandDescriptor.command;
-    this.parameters = this.commandDescriptor.parameters;
+    this.parameters = this.commandDescriptor.parameters || [];
     this.runAs = userInfo();
     this.status = CommandStatus.NOT_STARTED;
     this.history = [];
@@ -61,38 +75,31 @@ export class Command implements ICommand {
 
   /**
    * Executes the command
-   *
-   * @return an object containing the process's stdin, stdout and stderr streams
    */
-  public run(): ICommandIO {
+  public run(): void {
     const resolvedParameters = this.resolveCommandParameters(this.parameters);
 
-    logger.debug(`Launching command: ${ this.command } ${ resolvedParameters.join(' ') }`);
+    logger.debug(`Running command: ${ this.command } ${ resolvedParameters.join(' ') }`);
 
     this.startDate = new Date();
-    this.status = CommandStatus.RUNNING;
 
-    this.childProcess = spawn(this.command, resolvedParameters, {
-      cwd: process.cwd(),
-      uid: this.runAs.uid,
-      gid: this.runAs.gid,
-      stdio:[
-        'pipe',
-        'pipe',
-        'pipe'
-      ]
-    });
+    try {
+      this.childProcess = spawn(this.command, resolvedParameters, {
+        cwd: process.cwd(),
+        uid: this.runAs.uid,
+        gid: this.runAs.gid,
+      });
 
-    this.pid = this.childProcess.pid;
+      this.pid = this.childProcess.pid;
+      this.status = CommandStatus.RUNNING;
 
-    this.eventsListener();
-    this.registerIoEvent();
-
-    return {
-      stdin: this.childProcess.stdin,
-      stdout: this.childProcess.stdout,
-      stderr: this.childProcess.stderr,
-    };
+      this.eventsListener();
+      this.registerIoEvent();
+    } catch (err) {
+      console.log(err);
+      logger.error('A problem occurred when running the process', { data: { pid: this.pid, command: this.command } });
+      throw new ProcessError('A problem occurred when running the process', { data: { pid: this.pid, command: this.command }.toString() }, err as Error);
+    }
   }
 
   /**
@@ -321,7 +328,11 @@ export class Command implements ICommand {
    * @returns void
    */
   private registerIoEvent(): void {
-    this.childProcess?.stdout?.on('data', (data) => {
+    // @TODO when writing to streams I'm not checking for drainage but I'll do it later
+    // [https://nodejs.org/docs/latest-v20.x/api/stream.html#writablewritechunk-encoding-callback]
+
+    this.childProcess?.stdout?.on('data', (data: Buffer) => {
+      this.streams.writeOutput.write(data)
       this.history.push({
         data: data.toString(),
         date: new Date(),
@@ -329,11 +340,21 @@ export class Command implements ICommand {
       });
     });
 
-    this.childProcess?.stderr?.on('data', (data) => {
+    this.childProcess?.stderr?.on('data', (data: Buffer) => {
+      this.streams.writeError.write(data);
       this.history.push({
         data: data.toString(),
         date: new Date(),
         type: HistoryEntryType.ERR
+      });
+    });
+
+    this.streams.readInput.on('data', (data: string) => {
+      this.childProcess?.stdin?.write(data);
+      this.history.push({
+        data,
+        date: new Date(),
+        type: HistoryEntryType.IN
       });
     });
   }

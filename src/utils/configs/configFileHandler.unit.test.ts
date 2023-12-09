@@ -2,7 +2,7 @@ import { IConfigFile } from '../../definitions/IConfigFile';
 import { fileLoader } from '../fs/fileLoader';
 import { configFileHandler } from './configFileHandler';
 
-jest.mock('../../internal-tools/fileLoader');
+jest.mock('../fs/fileLoader');
 
 describe('Config file handler', () => {
   const mockJsonConfigFileStructure = {
