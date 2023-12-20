@@ -1,9 +1,10 @@
-import { Readable, Writable } from "stream";
 import { spawn } from "child_process";
 
 import { Command } from ".";
-import { RunCommandStreams } from "../../definitions/ICommand";
+import { CommandIOEvent, CommandIONotifier, CommandIONotifierFactory, commandIOEventSchema } from "../../definitions/ICommand";
 import { ICommandDescriptor } from '../../definitions/ICommandDescriptor';
+import EventEmitter from "events";
+import { CommandStatus } from "../../definitions/CommandStatusEnum";
 
 jest.mock('child_process');
 
@@ -21,19 +22,36 @@ describe('Command model', () => {
     nameAlias: 'print string',
   };
 
-  const mockStreams: RunCommandStreams = {
-    writeOutput: new Writable(),
-    writeError: new Writable(),
-    readInput: new Readable()
-  };
+  const mockCommandCenterNotifier = new EventEmitter();
+  const mockCommandIONotifierFactory: CommandIONotifierFactory = (string: Command['id']): CommandIONotifier => {
+    return mockCommandCenterNotifier.on(string, console.log);
+  } ;
+
+  const mockEventListener = (eventEmitter: EventEmitter) =>
+    jest.fn((...args: unknown[]) => {
+      const event = args[0] as string;
+      const listener = args[args.length - 1] as (...args: unknown[]) => void;
+      return eventEmitter.on(event, listener)
+    });
+
+  const mockEventEmitter = (eventEmitter: EventEmitter) =>
+    jest.fn((...args: unknown[]) => {
+      const event = args[0] as string;
+      const eventData = args.slice(1);
+      return eventEmitter.emit(event, ...eventData);
+    });
 
   beforeAll(() => {
     jest.resetAllMocks();
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    mockCommandCenterNotifier.removeAllListeners();
+  });
+
   it('should create an instance of a command', () => {
-    const command = new Command(mockCommandDescriptor, mockStreams);
+    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
 
     expect(command).toBeInstanceOf(Command);
   });
@@ -50,22 +68,149 @@ describe('Command model', () => {
       description: mockCommandDescriptor.description
     }]
   ] as unknown[])('should not create an instance of a command by passing invalid data as command descriptor ( %p )', (faultyDescriptor) => {
-    expect(() => new Command(faultyDescriptor as ICommandDescriptor, mockStreams)).toThrow('Could not create command instance: command descriptor not provided');
+    expect(() => new Command(faultyDescriptor as ICommandDescriptor, mockCommandIONotifierFactory)).toThrow('Could not create command instance: command descriptor not provided');
   });
 
-  it('should fail by not providing the io streams necessary create the command instance', async () => {
-    expect(() => new Command(mockCommandDescriptor as ICommandDescriptor, {} as RunCommandStreams)).toThrow('Could not create command instance: IO streams not provided');
+  it('should fail by not providing the io notifier factory necessary to create the command instance', () => {
+    expect(() => new Command(mockCommandDescriptor as ICommandDescriptor, {} as CommandIONotifierFactory)).toThrow('Could not create command instance: IO notifier factory not provided');
   });
 
   it('should fail by catching a problem with the process spawning mechanism', () => {
-    const command = new Command(mockCommandDescriptor, mockStreams);
+    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
     (spawn as jest.Mock).mockImplementationOnce(() => { throw new Error('something happened in the system'); });
 
     expect(() => command.run()).toThrow('A problem occurred when running the process');
   });
 
-  it.todo('should run a command');
-  it.todo('should stop a running command');
-  it.todo('should kill a running running');
-  it.todo('should send data to a running command via stdin');
+  it('should run a command', (done) => {
+    const childProcessEventEmitterMock = new EventEmitter();
+
+    const childProcessMock = {
+      on: mockEventListener(childProcessEventEmitterMock),
+      stdout: {
+        on: mockEventListener(childProcessEventEmitterMock),
+        emit: mockEventEmitter(childProcessEventEmitterMock),
+      },
+      stderr: { on: mockEventListener(childProcessEventEmitterMock) },
+      stdin: { write: jest.fn() },
+      pid: 1,
+    };
+
+    (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
+
+    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+    const commandId = command.getId();
+
+    let expectedIOEvent: CommandIOEvent;
+    const eventName = `${commandId}:output`;
+    mockCommandCenterNotifier.on(eventName, (payload: CommandIOEvent) => {
+      expectedIOEvent = payload;
+    });
+
+    command.run();
+
+    childProcessMock.on('exit', () => {
+      expect(command.getPid()).toBe(1);
+      expect(command.getStatus()).toBe(CommandStatus.FINISHED);
+      expect(command.getExitCode()).toBe(0);
+      expect(commandIOEventSchema.safeParse(expectedIOEvent).success).toBe(true);
+      done();
+    });
+
+    childProcessEventEmitterMock.emit('exit', 0, 'SIGCHLD');
+  });
+
+  it('should stop a running command', (done) => {
+    const childProcessEventEmitterMock = new EventEmitter();
+
+    const childProcessMock = {
+      on: mockEventListener(childProcessEventEmitterMock),
+      stdout: { on: mockEventListener(childProcessEventEmitterMock) },
+      stderr: { on: mockEventListener(childProcessEventEmitterMock) },
+      stdin: { write: jest.fn() },
+      pid: 1,
+      kill: jest.fn((signal: string) => childProcessEventEmitterMock.emit('exit', 0, signal)),
+    };
+
+    (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
+
+    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+
+    command.run();
+
+    childProcessMock.on('exit', () => {
+      expect(command.getPid()).toBe(1);
+      expect(command.getStatus()).toBe(CommandStatus.STOPPED);
+      expect(command.getExitCode()).toBe(0);
+      done();
+    });
+
+    command.stop();
+  });
+
+  it('should kill a running command', (done) => {
+    const childProcessEventEmitterMock = new EventEmitter();
+
+    const childProcessMock = {
+      on: mockEventListener(childProcessEventEmitterMock),
+      stdout: { on: mockEventListener(childProcessEventEmitterMock) },
+      stderr: { on: mockEventListener(childProcessEventEmitterMock) },
+      stdin: { write: jest.fn() },
+      pid: 1,
+      kill: jest.fn((signal: string) => childProcessEventEmitterMock.emit('exit', 0, signal)),
+    };
+
+    (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
+
+    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+
+    command.run();
+
+    childProcessMock.on('exit', () => {
+      expect(command.getPid()).toBe(1);
+      expect(command.getStatus()).toBe(CommandStatus.STOPPED);
+      expect(command.getExitCode()).toBe(0);
+      done();
+    });
+
+    command.kill();
+  });
+
+  it('should send data to a running command via stdin', (done) => {
+    const childProcessEventEmitterMock = new EventEmitter();
+
+    let receivedInput = '';
+    const childProcessMock = {
+      on: mockEventListener(childProcessEventEmitterMock),
+      stdout: {
+        on: mockEventListener(childProcessEventEmitterMock),
+        emit: mockEventEmitter(childProcessEventEmitterMock),
+      },
+      stderr: { on: mockEventListener(childProcessEventEmitterMock) },
+      stdin: { write: jest.fn((data: string) => receivedInput = data) },
+      pid: 1,
+    };
+
+    (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
+
+    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+    const commandId = command.getId();
+
+    command.run();
+
+    // send input from command center
+    const mockInputData = 'mockInputData';
+    const eventName = `${commandId}:input`;
+    mockCommandCenterNotifier.emit(eventName, mockInputData);
+
+    childProcessMock.on('exit', () => {
+      expect(command.getPid()).toBe(1);
+      expect(command.getStatus()).toBe(CommandStatus.FINISHED);
+      expect(command.getExitCode()).toBe(0);
+      expect(receivedInput).toBe(mockInputData);
+      done();
+    });
+
+    childProcessEventEmitterMock.emit('exit', 0, 'SIGCHLD');
+  });
 });

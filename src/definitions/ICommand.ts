@@ -1,38 +1,42 @@
 import {UserInfo} from "os";
-import { Readable, Writable } from "stream";
 import { z } from "zod";
 import {CommandStatus} from "./CommandStatusEnum";
 import {CommandParameter} from "./ICommandDescriptor";
-import {IHistoryEntry} from "./IHistoryEntry";
+import EventEmitter from "events";
 
-export const runCommandArgsSchema = z.object({
-  writeOutput: z.instanceof(Writable),
-  writeError: z.instanceof(Writable),
-  readInput: z.instanceof(Readable),
+export const commandIOEventSchemaTypes = ['input','output', 'processOutput', 'error', 'processError', 'processEnd'] as const;
+
+export const commandIOEventSchema = z.object({
+  id: z.string(),
+  commandId: z.string(),
+  type: z.enum(commandIOEventSchemaTypes),
+  date: z.coerce.date(),
+  payload: z.union([z.record(z.string()), z.string(), z.custom<Error>()]).optional(),
 });
 
-export type RunCommandStreams = z.infer<typeof runCommandArgsSchema>;
+export type CommandIOEvent = z.infer<typeof commandIOEventSchema>;
 
+export const commandIONotifierSchema = z.instanceof(EventEmitter);
 
-type ICommandEventAccessor = {
-  onEvent(event: string, listener: () => void): any;
-  removeAllEventListeners(event?: string): void;
-}
+export type CommandIONotifier = z.infer<typeof commandIONotifierSchema>;
+
+export const commandIONotifierFactorySchema = z.function().args(z.string()).returns(commandIONotifierSchema);
+
+export type CommandIONotifierFactory = z.infer<typeof commandIONotifierFactorySchema>;
 
 type ICommandInfoAccessor = {
   isRunning(): boolean;
   getStatus(): CommandStatus;
   getPid(): number | undefined;
+  getId(): string;
   getParameters(): Array<CommandParameter>;
   setParameters(parameters: Array<CommandParameter>): void ;
-  getRunAs(): UserInfo<any>;
-  getExitCode(): number | null;
+  getRunAs(): UserInfo<unknown>;
+  getExitCode(): number | undefined;
   getStartDate(): Date | undefined;
   getDescription(): string;
   getNameAlias(): string;
   getCommandString(): string;
-  onEvent(event: string, listener: () => void): any;
-  getHistoryDump(): Array<IHistoryEntry>;
 }
 
 type ICommandProcessRunner = {
@@ -47,7 +51,6 @@ type ICommandProcessStopper = {
 type ICommandProcessController = ICommandProcessRunner & ICommandProcessStopper;
 
 export type ICommand = ICommandInfoAccessor
-        & ICommandEventAccessor
         & ICommandProcessController;
 
 export type ICommandRemoteControl = ICommandInfoAccessor & ICommandProcessStopper;

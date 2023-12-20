@@ -1,18 +1,21 @@
 import { UserInfo, userInfo } from 'os';
 import { ChildProcess, spawn } from "child_process";
-import { ICommand, runCommandArgsSchema, RunCommandStreams } from '../../definitions/ICommand';
+import { ICommand, CommandIOEvent, CommandIONotifier, CommandIONotifierFactory, commandIONotifierFactorySchema } from '../../definitions/ICommand';
 import { commandDescriptorSchema, CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
 import { CommandStatus } from '../../definitions/CommandStatusEnum';
-import { HistoryEntryType, IHistoryEntry } from '../../definitions/IHistoryEntry';
 import { logger } from '../../utils/logger';
 import { idGenerator } from '../../utils/idGenerator';
 import { ProcessError, ValidationError } from '../../utils/errors';
+import { randomUUID } from 'crypto';
 
 /**
  * The command is instantiated by providing the command's descriptor object
  * to the contructor method.
  */
 export class Command implements ICommand {
+  // The command identifier (uuid/v4)
+  private id: string;
+
   // The command string
   private command: string;
 
@@ -26,41 +29,42 @@ export class Command implements ICommand {
   private nameAlias: string;
 
   // The command process's PID
-  private pid: number | undefined;
+  private pid?: number;
 
   // The command's current status
   private status: CommandStatus;
 
   // The user running the command
-  private runAs: UserInfo<any>;
+  private runAs: UserInfo<unknown>;
 
   // The command's exit code
-  private exitCode: number | null;
+  private exitCode?: number;
 
-  // Command's output
-  private history: Array<IHistoryEntry>;
+  // Signal sent by the OS
+  private signal?: NodeJS.Signals;
 
   // The instance of the command's process
-  private childProcess: ChildProcess | null;
+  private childProcess?: ChildProcess;
 
   // The datetime when the command was run (not instantiated)
-  private startDate: Date | undefined;
+  private startDate?: Date;
 
-  // The streams used for communication with the process
-  private streams: RunCommandStreams;
+  // The event emitter used for communication with the process
+  private notifier: CommandIONotifier;
 
-  constructor(private readonly commandDescriptor: ICommandDescriptor, streams: RunCommandStreams) {
+  constructor(private readonly commandDescriptor: ICommandDescriptor, notifierFactory: CommandIONotifierFactory) {
     if (!commandDescriptorSchema.safeParse(commandDescriptor).success) {
       logger.error('Cound not create command instance: command descriptor not provided', { data: JSON.stringify(commandDescriptor) });
       throw new ValidationError('Could not create command instance: command descriptor not provided', { data: JSON.stringify(commandDescriptor) });
     }
 
-    if (!runCommandArgsSchema.safeParse(streams).success) {
-      logger.error('Could not create command instance: IO streams not provided', { data: streams.toString() });
-      throw new ValidationError('Could not create command instance: IO streams not provided', { data: streams.toString() });
+    if (!commandIONotifierFactorySchema.safeParse(notifierFactory).success) {
+      logger.error('Could not create command instance: IO notifier factory not provided', { data: notifierFactory.toString() });
+      throw new ValidationError('Could not create command instance: IO notifier factory not provided', { data: notifierFactory.toString() });
     }
 
-    this.streams = streams;
+    this.id = randomUUID();
+    this.notifier = notifierFactory(this.id);
     this.nameAlias = this.commandDescriptor.nameAlias || idGenerator();
     logger.debug(`Creating command ${this.nameAlias}`);
     this.description = this.commandDescriptor.description || '';
@@ -68,9 +72,6 @@ export class Command implements ICommand {
     this.parameters = this.commandDescriptor.parameters || [];
     this.runAs = userInfo();
     this.status = CommandStatus.NOT_STARTED;
-    this.history = [];
-    this.childProcess = null;
-    this.exitCode = null;
   }
 
   /**
@@ -93,8 +94,9 @@ export class Command implements ICommand {
       this.pid = this.childProcess.pid;
       this.status = CommandStatus.RUNNING;
 
-      this.eventsListener();
-      this.registerIoEvent();
+      this.setLifecycleEventListeners();
+      this.setIOEmitters();
+      this.setIOListeners();
     } catch (err) {
       logger.error('A problem occurred when running the process', { data: { pid: this.pid, command: this.command } });
       throw new ProcessError('A problem occurred when running the process', { data: { pid: this.pid, command: this.command }.toString() }, err as Error);
@@ -172,20 +174,29 @@ export class Command implements ICommand {
   }
 
   /**
+   * Returns the ID of the process
+   *
+   * @returns a UUID representing the command
+   */
+  public getId(): string {
+    return this.id;
+  }
+
+  /**
    * Returns the user running the command's process
    *
    * @returns UserInfo object
    */
-  public getRunAs(): UserInfo<any> {
+  public getRunAs(): UserInfo<unknown> {
     return this.runAs;
   }
 
   /**
    * Returns the process exit code
    *
-   * @returns the exit code's number or null, if not present
+   * @returns the exit code's number or undefined, if not present
    */
-  public getExitCode(): number | null {
+  public getExitCode(): number | undefined {
     return this.exitCode;
   }
 
@@ -226,40 +237,6 @@ export class Command implements ICommand {
   }
 
   /**
-   * Provides a way to register a event listener for the process
-   *
-   * @returns any
-   */
-  public onEvent(event: string, listener: () => void): any {
-    return this.childProcess?.addListener(event, listener);
-  }
-
-  /**
-   * Removes all listeners the childProcess currently has
-   *
-   * @returns any
-   */
-  public removeAllEventListeners(event?: string): void {
-    if (this.childProcess) {
-      if (event) {
-        this.childProcess.removeAllListeners(event);
-      } else {
-        const events = this.childProcess.eventNames();
-        events.forEach((event) => this.childProcess?.removeAllListeners(event));
-      }
-    }
-  }
-
-  /**
-   * Gets the process' history data
-   *
-   * @returns an array of IHistoryEntry
-   */
-  public getHistoryDump(): Array<IHistoryEntry> {
-    return this.history;
-  }
-
-  /**
    * Makes sure the command receives the parameters that need user input
    *
    * In the list of parameters, there may be some 'input objects' among the strings
@@ -291,13 +268,13 @@ export class Command implements ICommand {
    *
    * @returns void
    */
-  private eventsListener(): void {
+  private setLifecycleEventListeners(): void {
     this.childProcess?.on('exit', (code, signal) => {
+      const now = new Date();
       switch (signal) {
         case 'SIGKILL':
-          this.status = CommandStatus.KILLED;
-          break;
         case 'SIGTERM':
+        case 'SIGQUIT':
           this.status = CommandStatus.STOPPED;
           break;
         default:
@@ -309,15 +286,39 @@ export class Command implements ICommand {
           break;
       }
 
-      this.exitCode = code;
+      this.signal = signal as NodeJS.Signals;
+      this.exitCode = !Object.is(code, null) ? code as number : -1;
+
+      const endProcessEvent: CommandIOEvent = {
+        id: randomUUID(),
+        commandId: this.id,
+        type: 'processEnd',
+        date: now,
+        payload: {
+          status: this.status,
+          signal: this.signal,
+          code: this.exitCode.toString() ,
+        }
+      };
+
+      this.notifyIOEvent(endProcessEvent)
       logger.debug(`Command "${this.nameAlias}" is exiting ${signal ? 'by signal' + signal : '' } with code ${code}`);
     });
 
-    this.childProcess?.on('error', (err) => {
+    this.childProcess?.on('error', (err: Error) => {
+      const now = new Date();
       this.status = CommandStatus.STOPPED;
-      // @TODO figure out about this error !== number thing
-      // this.exitCode = code;
-    logger.error(`Command ${this.nameAlias} stopped: ${err.message}`);
+
+      const processErrorPayload: CommandIOEvent = {
+        id: randomUUID(),
+        commandId: this.id,
+        type: 'processError',
+        date: now,
+        payload: err
+      }
+
+      this.notifyIOEvent(processErrorPayload)
+      logger.error(`Command ${this.nameAlias} got an error: ${err.message}`);
     });
   }
 
@@ -326,35 +327,58 @@ export class Command implements ICommand {
    *
    * @returns void
    */
-  private registerIoEvent(): void {
-    // @TODO when writing to streams I'm not checking for drainage but I'll do it later
-    // [https://nodejs.org/docs/latest-v20.x/api/stream.html#writablewritechunk-encoding-callback]
-
+  private setIOEmitters(): void {
     this.childProcess?.stdout?.on('data', (data: Buffer) => {
-      this.streams.writeOutput.write(data)
-      this.history.push({
-        data: data.toString(),
-        date: new Date(),
-        type: HistoryEntryType.OUT
-      });
+      const now = new Date();
+      const outputString = data.toString();
+      const outputEvent: CommandIOEvent = {
+        id: randomUUID(),
+        commandId: this.id,
+        type: 'output',
+        date: now,
+        payload: outputString,
+      };
+
+      this.notifyIOEvent(outputEvent)
     });
 
     this.childProcess?.stderr?.on('data', (data: Buffer) => {
-      this.streams.writeError.write(data);
-      this.history.push({
-        data: data.toString(),
-        date: new Date(),
-        type: HistoryEntryType.ERR
-      });
-    });
+      const now = new Date();
+      const errorString = data.toString();
+      const errorEvent: CommandIOEvent = {
+        id: randomUUID(),
+        commandId: this.id,
+        type: 'error',
+        date: now,
+        payload: errorString,
+      };
 
-    this.streams.readInput.on('data', (data: string) => {
-      this.childProcess?.stdin?.write(data);
-      this.history.push({
-        data,
-        date: new Date(),
-        type: HistoryEntryType.IN
-      });
+      this.notifyIOEvent(errorEvent)
     });
+  }
+
+  /**
+   * Registers listeners to receive communication from the command center
+   * into the running process
+   *
+   * @returns void
+   */
+  private setIOListeners(): void {
+    // @NOTE i don't know if this will work without adding <Enter> by default at the end of the data
+    const eventName = `${this.getId()}:input`;
+    this.notifier.on(eventName, (data: string) => {
+      this.childProcess?.stdin?.write(data);
+    });
+  }
+
+  /**
+   * Sends data out to the listener of the command (command center)
+   *
+   * @returns void
+   */
+  private notifyIOEvent(event: CommandIOEvent): void {
+    const eventName = `${this.getId()}:output`;
+    logger.debug(`Command ${this.getId()} sending notification of type ${event.type}`);
+    this.notifier.emit(eventName, event);
   }
 }
