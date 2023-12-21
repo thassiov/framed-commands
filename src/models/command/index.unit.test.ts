@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 
 import { Command } from ".";
-import { CommandIOEvent, CommandIONotifier, CommandIONotifierFactory, commandIOEventSchema } from "../../definitions/ICommand";
+import { CommandIOEvent, CommandIONotifier, commandIOEventSchema } from "../../definitions/ICommand";
 import { ICommandDescriptor } from '../../definitions/ICommandDescriptor';
 import EventEmitter from "events";
 import { CommandStatus } from "../../definitions/CommandStatusEnum";
@@ -23,9 +23,6 @@ describe('Command model', () => {
   };
 
   const mockCommandCenterNotifier = new EventEmitter();
-  const mockCommandIONotifierFactory: CommandIONotifierFactory = (string: Command['id']): CommandIONotifier => {
-    return mockCommandCenterNotifier.on(string, console.log);
-  } ;
 
   const mockEventListener = (eventEmitter: EventEmitter) =>
     jest.fn((...args: unknown[]) => {
@@ -51,7 +48,7 @@ describe('Command model', () => {
   });
 
   it('should create an instance of a command', () => {
-    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+    const command = new Command(mockCommandDescriptor, mockCommandCenterNotifier);
 
     expect(command).toBeInstanceOf(Command);
   });
@@ -68,15 +65,15 @@ describe('Command model', () => {
       description: mockCommandDescriptor.description
     }]
   ] as unknown[])('should not create an instance of a command by passing invalid data as command descriptor ( %p )', (faultyDescriptor) => {
-    expect(() => new Command(faultyDescriptor as ICommandDescriptor, mockCommandIONotifierFactory)).toThrow('Could not create command instance: command descriptor not provided');
+    expect(() => new Command(faultyDescriptor as ICommandDescriptor, mockCommandCenterNotifier)).toThrow('Could not create command instance: command descriptor not provided');
   });
 
-  it('should fail by not providing the io notifier factory necessary to create the command instance', () => {
-    expect(() => new Command(mockCommandDescriptor as ICommandDescriptor, {} as CommandIONotifierFactory)).toThrow('Could not create command instance: IO notifier factory not provided');
+  it('should fail by not providing the io notifier necessary to create the command instance', () => {
+    expect(() => new Command(mockCommandDescriptor as ICommandDescriptor, {} as CommandIONotifier)).toThrow('Could not create command instance: IO notifier not provided');
   });
 
   it('should fail by catching a problem with the process spawning mechanism', () => {
-    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+    const command = new Command(mockCommandDescriptor, mockCommandCenterNotifier);
     (spawn as jest.Mock).mockImplementationOnce(() => { throw new Error('something happened in the system'); });
 
     expect(() => command.run()).toThrow('A problem occurred when running the process');
@@ -98,7 +95,7 @@ describe('Command model', () => {
 
     (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
 
-    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+    const command = new Command(mockCommandDescriptor, mockCommandCenterNotifier);
     const commandId = command.getId();
 
     let expectedIOEvent: CommandIOEvent;
@@ -134,7 +131,7 @@ describe('Command model', () => {
 
     (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
 
-    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+    const command = new Command(mockCommandDescriptor, mockCommandCenterNotifier);
 
     command.run();
 
@@ -162,7 +159,7 @@ describe('Command model', () => {
 
     (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
 
-    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+    const command = new Command(mockCommandDescriptor, mockCommandCenterNotifier);
 
     command.run();
 
@@ -193,7 +190,7 @@ describe('Command model', () => {
 
     (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
 
-    const command = new Command(mockCommandDescriptor, mockCommandIONotifierFactory);
+    const command = new Command(mockCommandDescriptor, mockCommandCenterNotifier);
     const commandId = command.getId();
 
     command.run();

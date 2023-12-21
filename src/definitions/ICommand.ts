@@ -20,10 +20,6 @@ export const commandIONotifierSchema = z.instanceof(EventEmitter);
 
 export type CommandIONotifier = z.infer<typeof commandIONotifierSchema>;
 
-export const commandIONotifierFactorySchema = z.function().args(z.string()).returns(commandIONotifierSchema);
-
-export type CommandIONotifierFactory = z.infer<typeof commandIONotifierFactorySchema>;
-
 type ICommandInfoAccessor = {
   isRunning(): boolean;
   getStatus(): CommandStatus;

@@ -1,6 +1,6 @@
 import { UserInfo, userInfo } from 'os';
 import { ChildProcess, spawn } from "child_process";
-import { ICommand, CommandIOEvent, CommandIONotifier, CommandIONotifierFactory, commandIONotifierFactorySchema } from '../../definitions/ICommand';
+import { ICommand, CommandIOEvent, CommandIONotifier, commandIONotifierSchema } from '../../definitions/ICommand';
 import { commandDescriptorSchema, CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
 import { CommandStatus } from '../../definitions/CommandStatusEnum';
 import { logger } from '../../utils/logger';
@@ -52,19 +52,19 @@ export class Command implements ICommand {
   // The event emitter used for communication with the process
   private notifier: CommandIONotifier;
 
-  constructor(private readonly commandDescriptor: ICommandDescriptor, notifierFactory: CommandIONotifierFactory) {
+  constructor(private readonly commandDescriptor: ICommandDescriptor, notifier: CommandIONotifier) {
     if (!commandDescriptorSchema.safeParse(commandDescriptor).success) {
       logger.error('Cound not create command instance: command descriptor not provided', { data: JSON.stringify(commandDescriptor) });
       throw new ValidationError('Could not create command instance: command descriptor not provided', { data: JSON.stringify(commandDescriptor) });
     }
 
-    if (!commandIONotifierFactorySchema.safeParse(notifierFactory).success) {
-      logger.error('Could not create command instance: IO notifier factory not provided', { data: notifierFactory.toString() });
-      throw new ValidationError('Could not create command instance: IO notifier factory not provided', { data: notifierFactory.toString() });
+    if (!commandIONotifierSchema.safeParse(notifier).success) {
+      logger.error('Could not create command instance: IO notifier not provided', { data: notifier.toString() });
+      throw new ValidationError('Could not create command instance: IO notifier not provided', { data: notifier.toString() });
     }
 
     this.id = randomUUID();
-    this.notifier = notifierFactory(this.id);
+    this.notifier = notifier;
     this.nameAlias = this.commandDescriptor.nameAlias || idGenerator();
     logger.debug(`Creating command ${this.nameAlias}`);
     this.description = this.commandDescriptor.description || '';
