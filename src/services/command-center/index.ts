@@ -162,4 +162,16 @@ export default class CommandCenter {
 
     return true;
   }
+
+  /**
+    * A list used by the class calling the command center so all commands can be listened to
+    *
+    * @returns a list of strings containing all "<id>:output" and "<id>:input" that can be instened to
+    */
+  public getCommandsEventNames(): string[] {
+    return this.commands.map((command: ICommand) => {
+      const { input, output } = command.getEventNames();
+      return [input, output];
+    }).flat();
+  }
 }

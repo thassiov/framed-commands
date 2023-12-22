@@ -1,6 +1,6 @@
 import { UserInfo, userInfo } from 'os';
 import { ChildProcess, spawn } from "child_process";
-import { ICommand, CommandIOEvent, CommandIONotifier, commandIONotifierSchema } from '../../definitions/ICommand';
+import { ICommand, CommandIOEvent, CommandIONotifier, commandIONotifierSchema, CommandEventNames } from '../../definitions/ICommand';
 import { commandDescriptorSchema, CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
 import { CommandStatus } from '../../definitions/CommandStatusEnum';
 import { logger } from '../../utils/logger';
@@ -52,6 +52,8 @@ export class Command implements ICommand {
   // The event emitter used for communication with the process
   private notifier: CommandIONotifier;
 
+  private eventNames: CommandEventNames;
+
   constructor(private readonly commandDescriptor: ICommandDescriptor, notifier: CommandIONotifier) {
     if (!commandDescriptorSchema.safeParse(commandDescriptor).success) {
       logger.error('Cound not create command instance: command descriptor not provided', { data: JSON.stringify(commandDescriptor) });
@@ -65,6 +67,10 @@ export class Command implements ICommand {
 
     this.id = randomUUID();
     this.notifier = notifier;
+    this.eventNames = {
+      output: `${this.id}:output`,
+      input: `${this.id}:output`,
+    };
     this.nameAlias = this.commandDescriptor.nameAlias || idGenerator();
     logger.debug(`Creating command ${this.nameAlias}`);
     this.description = this.commandDescriptor.description || '';
@@ -365,8 +371,7 @@ export class Command implements ICommand {
    */
   private setIOListeners(): void {
     // @NOTE i don't know if this will work without adding <Enter> by default at the end of the data
-    const eventName = `${this.getId()}:input`;
-    this.notifier.on(eventName, this.inputEventListener);
+    this.notifier.on(this.eventNames.input, this.inputEventListener);
   }
 
   /**
@@ -375,9 +380,8 @@ export class Command implements ICommand {
    * @returns void
    */
   private notifyIOEvent(event: CommandIOEvent): void {
-    const eventName = `${this.getId()}:output`;
     logger.debug(`Command ${this.getId()} sending notification of type ${event.type}`);
-    this.notifier.emit(eventName, event);
+    this.notifier.emit(this.eventNames.output, event);
   }
 
   private inputEventListener(data: string): void {
@@ -392,7 +396,10 @@ export class Command implements ICommand {
    * @returns void
    */
   public detachEventNotifier() {
-    const eventName = `${this.getId()}:output`;
-    this.notifier.removeListener(eventName, this.inputEventListener);
+    this.notifier.removeListener(this.eventNames.input, this.inputEventListener);
+  }
+
+  public getEventNames(): CommandEventNames {
+    return this.eventNames;
   }
 }

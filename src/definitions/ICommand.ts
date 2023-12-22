@@ -4,6 +4,11 @@ import {CommandStatus} from "./CommandStatusEnum";
 import {CommandParameter} from "./ICommandDescriptor";
 import EventEmitter from "events";
 
+export type CommandEventNames = {
+  output: string;
+  input: string;
+};
+
 export const commandIOEventSchemaTypes = ['input','output', 'processOutput', 'error', 'processError', 'processEnd'] as const;
 
 export const commandIOEventSchema = z.object({
@@ -34,6 +39,7 @@ type ICommandInfoAccessor = {
   getNameAlias(): string;
   getCommandString(): string;
   detachEventNotifier(): void;
+  getEventNames(): CommandEventNames;
 }
 
 type ICommandProcessRunner = {
