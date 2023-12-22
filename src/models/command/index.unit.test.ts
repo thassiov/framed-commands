@@ -5,22 +5,11 @@ import { CommandIOEvent, CommandIONotifier, commandIOEventSchema } from "../../d
 import { ICommandDescriptor } from '../../definitions/ICommandDescriptor';
 import EventEmitter from "events";
 import { CommandStatus } from "../../definitions/CommandStatusEnum";
+import { mockCommandDescriptor } from "../../utils/tests/commandDescriptor";
 
 jest.mock('child_process');
 
 describe('Command model', () => {
-  const mockCommandDescriptor: ICommandDescriptor = {
-    command: 'node',
-    parameters: [
-      '-e',
-      {
-        type: 'string',
-        parameter: 'console.log("test command")',
-      }
-    ],
-    description: 'calls the console.log function with a string using the terminal',
-    nameAlias: 'print string',
-  };
 
   const mockCommandCenterNotifier = new EventEmitter();
 

@@ -13,7 +13,7 @@ const inputParameterSchema = z.object({
 })
 export type InputParameter = z.infer<typeof inputParameterSchema>;
 
-const commandParameterSchema = z.union([z.string(), inputParameterSchema]);
+export const commandParameterSchema = z.union([z.string(), inputParameterSchema]);
 export type CommandParameter = z.infer<typeof commandParameterSchema>;
 
 export const commandDescriptorSchema = z.object({

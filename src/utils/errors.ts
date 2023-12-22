@@ -35,3 +35,7 @@ export class SystemError extends CustomError {
 export class ProcessError extends CustomError {
   name = 'ProcessError';
 }
+
+export class NotFoundError extends CustomError {
+  name = 'NotFoundError';
+}

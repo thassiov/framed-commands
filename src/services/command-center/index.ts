@@ -1,12 +1,10 @@
-import { Readable } from 'stream';
-import { ICommand } from '../../definitions/ICommand';
-import { CommandParameter, ICommandDescriptor } from '../../definitions/ICommandDescriptor';
+import { CommandIONotifier, ICommand, commandIONotifierSchema } from '../../definitions/ICommand';
+import { CommandParameter, ICommandDescriptor, commandDescriptorSchema } from '../../definitions/ICommandDescriptor';
 import { Command } from '../../models';
+import { logger } from '../../utils/logger';
+import { NotFoundError, ValidationError } from '../../utils/errors';
 
-interface IOutput {
-  stdout: Readable;
-  stderr: Readable;
-}
+export type CommandListItem = { alias: string, description: string, id: string };
 
 /**
  * Generates a list of `Command`s based on commands descriptors received as
@@ -14,13 +12,28 @@ interface IOutput {
  * using the `runCommand` method. The `id` is their index in the list, which
  * is zero indexed.
  */
-export default class CommandsService {
+export default class CommandCenter {
   // The list of commands
   private commands: Array<ICommand> = [];
 
-  constructor(private readonly commandDescriptors: Array<ICommandDescriptor>) {
-    this.commandDescriptors.forEach((command: ICommandDescriptor) => {
-      this.commands.push(new Command(command));
+  // The list of command descriptors
+  private commandDescriptors: ICommandDescriptor[];
+
+  // event emitter used to receive and send data to commands
+  private commandIONotifier: CommandIONotifier;
+
+  constructor(commandDescriptors: ICommandDescriptor[] = [], commandIONotifier: CommandIONotifier) {
+    this.commandDescriptors = commandDescriptors;
+
+    if (!commandIONotifierSchema.safeParse(commandIONotifier).success) {
+      logger.error('Could not create instance of Command Center: commandIONotifier provided is invalid or missing');
+      throw new ValidationError('Could not create instance of Command Center: commandIONotifier provided is invalid or missing');
+    }
+
+    this.commandIONotifier = commandIONotifier;
+
+    this.commandDescriptors.forEach((commandDescriptor: ICommandDescriptor) => {
+      this.addNewCommand(commandDescriptor);
     });
   }
 
@@ -42,19 +55,14 @@ export default class CommandsService {
    * @param id - The index of the given command
    * @returns Promise<void>
    */
-  public runCommand(id: number): IOutput {
-    const command = this.commands[id];
-
-    if(!command) {
-      throw new Error(`Command id ${id} does not exists`);
+  public runCommand(commandId: string): void {
+    try {
+      const command = this.getCommandById(commandId);
+      command.run();
+    } catch (error) {
+      logger.error(`Could not run command ${commandId}: ${(error as Error).message}`);
+      throw error;
     }
-
-    const io = command.run();
-
-    return {
-      stdout: io.stdout as Readable,
-      stderr: io.stderr as Readable,
-    };
   }
 
   /**
@@ -63,15 +71,20 @@ export default class CommandsService {
    *
    * @returns An array of command descriptors
    */
-  public getCommandList(): Array<ICommandDescriptor>{
-    return this.commandDescriptors;
+  public getCommandList(): CommandListItem[]{
+    return this.commands.map((command: ICommand) => ({
+      alias: command.getNameAlias(),
+      description: command.getDescription(),
+      id: command.getId(),
+    }));
   }
 
-  public getCommandById(commandId: number): ICommand {
-    const command = this.commands[commandId];
+  public getCommandById(commandId: string): ICommand {
+    const command = this.commands.find((command: ICommand) => command.getId() === commandId);
 
     if(!command) {
-      throw new Error(`Command id ${commandId} does not exists`);
+      logger.error(`Command id ${commandId} does not exists`);
+      throw new NotFoundError(`Command id ${commandId} does not exists`, { data: commandId });
     }
 
     return command;
@@ -83,7 +96,7 @@ export default class CommandsService {
    * @returns the number of registered commands
    */
   public getCommandCount(): number {
-    return this.commandDescriptors.length;
+    return this.commands.length;
   }
 
   /**
@@ -91,45 +104,61 @@ export default class CommandsService {
    *
    * @returns The command's parameters (Array<CommandParameter>)
    */
-  public getParametersFromCommand(commandId: number): Array<CommandParameter> {
-    if(!this.commands[commandId]) {
-      throw new Error('Command does not exist');
+  public getParametersFromCommand(commandId: string): CommandParameter[] {
+    try {
+      const command = this.getCommandById(commandId);
+      return command.getParameters();
+    } catch (error) {
+      logger.error(`Could not get command's parameters: ${(error as Error).message}`, { data: commandId })
+      throw error;
     }
-
-    return (this.commands[commandId] as ICommand).getParameters();
   }
 
   /**
    * Sets' new parameters in a given command
    *
-   * @param commandId number
+   * @param commandId string
    * @param parameters Array<CommandParameter>
    *
    * @returns void
    */
-  public setParametersFromCommand(commandId: number, parameters: Array<CommandParameter>): void {
-    if(!this.commands[commandId]) {
-      throw new Error('Command does not exist');
+  public setParametersFromCommand(commandId: string, parameters: CommandParameter[]): void {
+    try {
+      const command = this.getCommandById(commandId);
+      return command.setParameters(parameters);
+    } catch (error) {
+      logger.error(`Could not get command's parameters: ${(error as Error).message}`, { data: commandId })
+      throw error;
     }
 
-    (this.commands[commandId] as ICommand).setParameters(parameters);
+    ;
   }
 
-  public listenToCommandEvent(commandId: number, event: string, eventHandler: () => void): void {
-    const command = this.commands[commandId];
-
-    if(!command) {
-      throw new Error('Command does not exist');
+  public addNewCommand(commandDescriptor: ICommandDescriptor): boolean {
+    if (!commandDescriptorSchema.safeParse(commandDescriptor).success) {
+      logger.warn('Could not instantiate command:', commandDescriptor);
+      return false;
     }
 
-    command.onEvent(event, eventHandler);
+    this.commands.push(new Command(commandDescriptor, this.commandIONotifier));
+
+    return true;
   }
 
-  public stopListeningtoCommandEvents(commandId: number): void {
-    if(!this.commands[commandId]) {
-      throw new Error('Command does not exist');
+  public removeCommandById(commandId: string): boolean {
+    if (!commandId) {
+      return false;
     }
 
-    this.commands[commandId]?.removeAllEventListeners();
+    const idx = this.getCommandList().findIndex((command: CommandListItem) => command.id === commandId);
+
+    if (idx === -1) {
+      return false;
+    }
+
+    // @TODO remove listeners from this command
+    this.commands.splice(idx, 1);
+
+    return true;
   }
 }
