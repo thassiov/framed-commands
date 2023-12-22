@@ -1,5 +1,5 @@
 {
-  "name": "cast",
+  "name": "framed-commands",
   "version": "0.1.0",
   "description": "Make a tui app using a config file",
   "engines": {
@@ -8,7 +8,8 @@
   },
   "main": "./src/index.ts",
   "bin": {
-    "cast": "./dist/index.js"
+    "framed": "./dist/index.js",
+    "framed-commands": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -25,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thassiov/cast.git"
+    "url": "git+https://github.com/thassiov/framed-commands.git"
   },
   "keywords": [
     "tui",
@@ -39,9 +40,9 @@
     "spawn"
   ],
   "bugs": {
-    "url": "https://github.com/thassiov/cast/issues"
+    "url": "https://github.com/thassiov/framed-commands/issues"
   },
-  "homepage": "https://github.com/thassiov/cast#readme",
+  "homepage": "https://github.com/thassiov/framed-commands#readme",
   "license": "MIT",
   "dependencies": {
     "js-yaml": "^4.1.0",
