@@ -366,9 +366,7 @@ export class Command implements ICommand {
   private setIOListeners(): void {
     // @NOTE i don't know if this will work without adding <Enter> by default at the end of the data
     const eventName = `${this.getId()}:input`;
-    this.notifier.on(eventName, (data: string) => {
-      this.childProcess?.stdin?.write(data);
-    });
+    this.notifier.on(eventName, this.inputEventListener);
   }
 
   /**
@@ -380,5 +378,21 @@ export class Command implements ICommand {
     const eventName = `${this.getId()}:output`;
     logger.debug(`Command ${this.getId()} sending notification of type ${event.type}`);
     this.notifier.emit(eventName, event);
+  }
+
+  private inputEventListener(data: string): void {
+    this.childProcess?.stdin?.write(data);
+  }
+
+  /**
+   * Used when deleting the command from the command center
+   * This removes the listener so we don't have 'dangling' ones
+   * after command removal
+   *
+   * @returns void
+   */
+  public detachEventNotifier() {
+    const eventName = `${this.getId()}:output`;
+    this.notifier.removeListener(eventName, this.inputEventListener);
   }
 }

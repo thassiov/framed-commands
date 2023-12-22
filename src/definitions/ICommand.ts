@@ -33,6 +33,7 @@ type ICommandInfoAccessor = {
   getDescription(): string;
   getNameAlias(): string;
   getCommandString(): string;
+  detachEventNotifier(): void;
 }
 
 type ICommandProcessRunner = {

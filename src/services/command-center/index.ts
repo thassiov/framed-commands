@@ -153,10 +153,11 @@ export default class CommandCenter {
     const idx = this.getCommandList().findIndex((command: CommandListItem) => command.id === commandId);
 
     if (idx === -1) {
-      return false;
+      logger.error(`Command id ${commandId} does not exists`);
+      throw new NotFoundError(`Command id ${commandId} does not exists`, { data: commandId });
     }
 
-    // @TODO remove listeners from this command
+    this.getCommandById(commandId).detachEventNotifier();
     this.commands.splice(idx, 1);
 
     return true;
