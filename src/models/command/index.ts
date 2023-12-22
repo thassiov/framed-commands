@@ -69,8 +69,9 @@ export class Command implements ICommand {
     this.notifier = notifier;
     this.eventNames = {
       output: `${this.id}:output`,
-      input: `${this.id}:output`,
+      input: `${this.id}:input`,
     };
+    // @TODO decide wheter to use randomUUID or idGenerator, or even make idGenerator use randomUUID
     this.nameAlias = this.commandDescriptor.nameAlias || idGenerator();
     logger.debug(`Creating command ${this.nameAlias}`);
     this.description = this.commandDescriptor.description || '';
@@ -371,7 +372,7 @@ export class Command implements ICommand {
    */
   private setIOListeners(): void {
     // @NOTE i don't know if this will work without adding <Enter> by default at the end of the data
-    this.notifier.on(this.eventNames.input, this.inputEventListener);
+    this.notifier.on(this.eventNames.input, this.inputEventListener.bind(this));
   }
 
   /**

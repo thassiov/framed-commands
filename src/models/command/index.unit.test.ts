@@ -85,10 +85,9 @@ describe('Command model', () => {
     (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
 
     const command = new Command(mockCommandDescriptor, mockCommandCenterNotifier);
-    const commandId = command.getId();
 
     let expectedIOEvent: CommandIOEvent;
-    const eventName = `${commandId}:output`;
+    const eventName = command.getEventNames().output;
     mockCommandCenterNotifier.on(eventName, (payload: CommandIOEvent) => {
       expectedIOEvent = payload;
     });
@@ -173,26 +172,26 @@ describe('Command model', () => {
         emit: mockEventEmitter(childProcessEventEmitterMock),
       },
       stderr: { on: mockEventListener(childProcessEventEmitterMock) },
-      stdin: { write: jest.fn((data: string) => receivedInput = data) },
+      stdin: { write: jest.fn((data: string) => receivedInput = data.toString()) },
       pid: 1,
     };
 
     (spawn as jest.Mock).mockReturnValueOnce(childProcessMock);
 
     const command = new Command(mockCommandDescriptor, mockCommandCenterNotifier);
-    const commandId = command.getId();
 
     command.run();
 
     // send input from command center
     const mockInputData = 'mockInputData';
-    const eventName = `${commandId}:input`;
+    const eventName = command.getEventNames().input;
     mockCommandCenterNotifier.emit(eventName, mockInputData);
 
     childProcessMock.on('exit', () => {
       expect(command.getPid()).toBe(1);
       expect(command.getStatus()).toBe(CommandStatus.FINISHED);
       expect(command.getExitCode()).toBe(0);
+      expect(childProcessMock.stdin.write).toHaveBeenCalledWith(mockInputData);
       expect(receivedInput).toBe(mockInputData);
       done();
     });
