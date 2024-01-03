@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "module": "commonjs",
     "outDir": "dist",
     "target": "es6",
@@ -9,7 +9,10 @@
 		"lib": [
 			"ES2019",
 			"ES2020.String",
-			"DOM"
+			"DOM",
+      "dom",
+      "dom.iterable",
+      "esnext"
 		],
 		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,

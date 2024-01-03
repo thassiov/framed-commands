@@ -45,14 +45,18 @@
   "homepage": "https://github.com/thassiov/framed-commands#readme",
   "license": "MIT",
   "dependencies": {
+    "ink": "^4.4.1",
     "js-yaml": "^4.1.0",
     "pino": "^8.16.2",
+    "react": "^18.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/ink": "^2.0.3",
     "@types/jest": "29.5.11",
     "@types/js-yaml": "^4.0.1",
     "@types/node": "^20.10.4",
+    "@types/react": "^18.2.45",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
     "eslint": "^8.55.0",
@@ -120,7 +124,12 @@
         }
       ],
       "rules": {
-        "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }]
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "ignoreRestSiblings": true
+          }
+        ]
       }
     }
   }
