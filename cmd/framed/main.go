@@ -5,9 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/user"
 	"strings"
+	"time"
 
 	"github.com/thassiov/framed-commands/internal/command"
+	"github.com/thassiov/framed-commands/internal/history"
 	"github.com/thassiov/framed-commands/internal/loader"
 	"github.com/thassiov/framed-commands/internal/orchestrator"
 	"github.com/thassiov/framed-commands/internal/picker"
@@ -59,6 +62,8 @@ func main() {
 	fmt.Printf("\nRunning: %s %v\n", selected.Descriptor.Command, selected.Descriptor.Args)
 	fmt.Println(strings.Repeat("-", 40))
 
+	startTime := time.Now()
+
 	if err := selected.Start(context.Background()); err != nil {
 		fmt.Fprintf(os.Stderr, "error starting command: %v\n", err)
 		os.Exit(1)
@@ -68,6 +73,39 @@ func main() {
 		fmt.Println(out.Content)
 	}
 
+	duration := time.Since(startTime)
+
 	fmt.Println(strings.Repeat("-", 40))
 	fmt.Printf("Exit code: %d\n", *selected.ExitCode)
+
+	// Log execution to history
+	logExecution(selected, startTime, duration)
+}
+
+func logExecution(cmd *command.Command, startTime time.Time, duration time.Duration) {
+	hist, err := history.New()
+	if err != nil {
+		// Silent fail - don't disrupt user experience for logging
+		return
+	}
+
+	username := "unknown"
+	if u, err := user.Current(); err == nil {
+		username = u.Username
+	}
+
+	workdir, _ := os.Getwd()
+
+	entry := history.Entry{
+		Timestamp: startTime,
+		User:      username,
+		Name:      cmd.Descriptor.Name,
+		Command:   cmd.Descriptor.Command,
+		Args:      cmd.Descriptor.Args,
+		ExitCode:  *cmd.ExitCode,
+		Duration:  duration,
+		WorkDir:   workdir,
+	}
+
+	hist.Log(entry)
 }
