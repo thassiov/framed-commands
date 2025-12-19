@@ -8,6 +8,7 @@
 - [x] Configurable aliases (`cmdvault my-alias` runs command directly, auto-generated from name)
 - [x] User input parameters (`{{port}}` placeholders, positional args, `--` passthrough)
 - [x] Shell completion scripts (bash and zsh, via `--list-aliases`)
+- [x] Keybinding support (Ctrl+F to launch picker via ZLE widget / bash bind)
 
 ## Planned
 
@@ -15,7 +16,6 @@
 - [ ] Add `--print` flag to output command instead of running it
 - [ ] Add `--insert` flag for cursor insertion mode
 - [ ] Add `--copy` flag to copy command to clipboard
-- [ ] Support keybinding (e.g., Ctrl+F) via ZLE widget
 - [ ] Support leader key sequences (e.g., Ctrl+X then f)
 - [ ] Fish integration (`shell/cmdvault.fish`)
 

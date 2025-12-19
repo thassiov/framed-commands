@@ -1,6 +1,10 @@
-# cmdvault bash completion
+# cmdvault bash completion and keybindings
 # Source this file or add to your .bashrc:
 #   source /path/to/cmdvault/shell/cmdvault.bash
+
+# ============================================================================
+# Tab completion
+# ============================================================================
 
 _cmdvault_completions() {
     local cur="${COMP_WORDS[COMP_CWORD]}"
@@ -16,3 +20,13 @@ _cmdvault_completions() {
 }
 
 complete -F _cmdvault_completions cmdvault
+
+# ============================================================================
+# Keybinding (Ctrl+F to launch picker)
+# ============================================================================
+
+cmdvault-widget() {
+    cmdvault
+}
+
+bind -x '"\C-f": cmdvault-widget'

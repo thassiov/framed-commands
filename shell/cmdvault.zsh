@@ -1,6 +1,10 @@
-# cmdvault zsh completion
+# cmdvault zsh completion and keybindings
 # Source this file or add to your .zshrc:
 #   source /path/to/cmdvault/shell/cmdvault.zsh
+
+# ============================================================================
+# Tab completion
+# ============================================================================
 
 _cmdvault() {
     local -a aliases
@@ -18,3 +22,16 @@ _cmdvault() {
 }
 
 compdef _cmdvault cmdvault
+
+# ============================================================================
+# Keybinding widget (Ctrl+F to launch picker)
+# ============================================================================
+
+cmdvault-widget() {
+    zle -I  # Invalidate display
+    cmdvault
+    zle reset-prompt
+}
+
+zle -N cmdvault-widget
+bindkey '^F' cmdvault-widget
