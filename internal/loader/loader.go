@@ -136,6 +136,12 @@ func (l *Loader) EnsureDefaultDirs() error {
 	return nil
 }
 
+// DefaultDirExists checks if the default commands directory exists
+func (l *Loader) DefaultDirExists() bool {
+	_, err := os.Stat(l.commandsDir)
+	return err == nil
+}
+
 // GetCommandsDir returns the commands directory path
 func (l *Loader) GetCommandsDir() string {
 	return l.commandsDir

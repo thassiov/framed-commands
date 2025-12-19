@@ -27,6 +27,28 @@ func main() {
 		os.Exit(1)
 	}
 
+	// If using default directory and it doesn't exist, offer to create it
+	if *filePath == "" && !l.DefaultDirExists() {
+		fmt.Printf("Commands directory not found: %s\n", l.GetCommandsDir())
+		fmt.Print("Create it? (y/n): ")
+
+		var answer string
+		fmt.Scanln(&answer)
+
+		if answer != "y" && answer != "Y" {
+			os.Exit(0)
+		}
+
+		if err := l.EnsureDefaultDirs(); err != nil {
+			fmt.Fprintf(os.Stderr, "error creating directory: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Created %s\n", l.GetCommandsDir())
+		fmt.Println("Add your command files (.yaml) to this directory and run again.")
+		os.Exit(0)
+	}
+
 	commands, err := l.Load(*filePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error loading commands: %v\n", err)
