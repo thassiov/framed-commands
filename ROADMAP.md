@@ -7,6 +7,7 @@
 - [x] Pipeable output (clean stdout when piped, no decorative text)
 - [x] Configurable aliases (`cmdvault my-alias` runs command directly, auto-generated from name)
 - [x] User input parameters (`{{port}}` placeholders, positional args, `--` passthrough)
+- [x] Shell completion scripts (bash and zsh, via `--list-aliases`)
 
 ## Planned
 
@@ -14,10 +15,8 @@
 - [ ] Add `--print` flag to output command instead of running it
 - [ ] Add `--insert` flag for cursor insertion mode
 - [ ] Add `--copy` flag to copy command to clipboard
-- [ ] Create `shell/cmdvault.zsh` integration script
 - [ ] Support keybinding (e.g., Ctrl+F) via ZLE widget
 - [ ] Support leader key sequences (e.g., Ctrl+X then f)
-- [ ] Bash integration (`shell/cmdvault.bash`)
 - [ ] Fish integration (`shell/cmdvault.fish`)
 
 ### Commands

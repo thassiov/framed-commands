@@ -23,6 +23,7 @@ import (
 func main() {
 	filePath := flag.String("f", "", "path to command file or directory")
 	simple := flag.Bool("simple", false, "use simple numbered list instead of fuzzy finder")
+	listAliases := flag.Bool("list-aliases", false, "list all command aliases (for shell completion)")
 	flag.Parse()
 
 	l, err := loader.New()
@@ -61,6 +62,14 @@ func main() {
 
 	if len(commands) == 0 {
 		fmt.Println("no commands found")
+		os.Exit(0)
+	}
+
+	// Handle --list-aliases for shell completion
+	if *listAliases {
+		for _, cmd := range commands {
+			fmt.Println(cmd.Alias)
+		}
 		os.Exit(0)
 	}
 
