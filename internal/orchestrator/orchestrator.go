@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/thassiov/framed-commands/internal/command"
+	"github.com/thassiov/cmdvault/internal/command"
 )
 
 // Orchestrator manages multiple commands

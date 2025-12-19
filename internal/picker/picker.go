@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	fuzzyfinder "github.com/ktr0731/go-fuzzyfinder"
-	"github.com/thassiov/framed-commands/internal/command"
+	"github.com/thassiov/cmdvault/internal/command"
 )
 
 // Pick prompts the user to select a command

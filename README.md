@@ -15,13 +15,13 @@ Or build from source:
 ```bash
 git clone https://github.com/thassiov/cmdvault
 cd cmdvault
-go build -o cmdvault ./cmd/framed
+go build -o cmdvault ./cmd/cmdvault
 ```
 
 ## Usage
 
 ```bash
-# Run with default directory (~/.config/framed/commands/)
+# Run with default directory (~/.config/cmdvault/commands/)
 cmdvault
 
 # Run with a specific file
@@ -38,7 +38,7 @@ On first run, cmdvault will offer to create the config directory if it doesn't e
 
 ## Defining Commands
 
-Create YAML files in `~/.config/framed/commands/` (or specify with `-f`):
+Create YAML files in `~/.config/cmdvault/commands/` (or specify with `-f`):
 
 ```yaml
 name: Docker Commands
@@ -79,7 +79,7 @@ commands:
 - Falls back to built-in fuzzy finder with preview pane
 
 **Execution history**
-- Logs all runs to `~/.config/framed/history.jsonl`
+- Logs all runs to `~/.config/cmdvault/history.jsonl`
 - Tracks: timestamp, user, command, exit code, duration
 
 **Multiple command files**

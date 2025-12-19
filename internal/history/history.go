@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	DefaultConfigDir = ".config/framed"
+	DefaultConfigDir = ".config/cmdvault"
 	HistoryFile      = "history.jsonl"
 )
 
@@ -32,7 +32,7 @@ type History struct {
 	path string
 }
 
-// New creates a history manager with default path (~/.config/framed/history.jsonl)
+// New creates a history manager with default path (~/.config/cmdvault/history.jsonl)
 func New() (*History, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {

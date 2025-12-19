@@ -1,4 +1,4 @@
-module github.com/thassiov/framed-commands
+module github.com/thassiov/cmdvault
 
 go 1.25.5
 

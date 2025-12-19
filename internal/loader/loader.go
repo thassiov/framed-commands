@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/thassiov/framed-commands/internal/command"
+	"github.com/thassiov/cmdvault/internal/command"
 	"gopkg.in/yaml.v3"
 )
 
 const (
-	DefaultConfigDir  = ".config/framed"
+	DefaultConfigDir  = ".config/cmdvault"
 	DefaultCommandDir = "commands"
 )
 
@@ -28,7 +28,7 @@ type Loader struct {
 	commandsDir string
 }
 
-// New creates a loader with default paths (~/.config/framed/commands)
+// New creates a loader with default paths (~/.config/cmdvault/commands)
 func New() (*Loader, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {

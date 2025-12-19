@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/thassiov/framed-commands/internal/command"
-	"github.com/thassiov/framed-commands/internal/history"
-	"github.com/thassiov/framed-commands/internal/loader"
-	"github.com/thassiov/framed-commands/internal/orchestrator"
-	"github.com/thassiov/framed-commands/internal/picker"
+	"github.com/thassiov/cmdvault/internal/command"
+	"github.com/thassiov/cmdvault/internal/history"
+	"github.com/thassiov/cmdvault/internal/loader"
+	"github.com/thassiov/cmdvault/internal/orchestrator"
+	"github.com/thassiov/cmdvault/internal/picker"
 )
 
 func main() {

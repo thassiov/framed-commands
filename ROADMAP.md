@@ -6,11 +6,11 @@
 - [ ] Add `--print` flag to output command instead of running it
 - [ ] Add `--insert` flag for cursor insertion mode
 - [ ] Add `--copy` flag to copy command to clipboard
-- [ ] Create `shell/framed.zsh` integration script
+- [ ] Create `shell/cmdvault.zsh` integration script
 - [ ] Support keybinding (e.g., Ctrl+F) via ZLE widget
 - [ ] Support leader key sequences (e.g., Ctrl+X then f)
-- [ ] Bash integration (`shell/framed.bash`)
-- [ ] Fish integration (`shell/framed.fish`)
+- [ ] Bash integration (`shell/cmdvault.bash`)
+- [ ] Fish integration (`shell/cmdvault.fish`)
 
 ### Commands
 - [ ] User input parameters (prompt for values at runtime)
@@ -20,7 +20,7 @@
 
 ### Output
 - [ ] `--save-output` flag to save command output to file
-- [ ] Auto-save output to `~/.config/framed/logs/`
+- [ ] Auto-save output to `~/.config/cmdvault/logs/`
 - [ ] Handle pagers/TUI programs (less, vim, htop, etc.) - needs research
 
 ### UI/UX
@@ -29,7 +29,7 @@
 - [ ] Interactive mode (run multiple commands in a session)
 
 ### Configuration
-- [ ] Global config file (`~/.config/framed/config.yaml`)
+- [ ] Global config file (`~/.config/cmdvault/config.yaml`)
 - [ ] Custom fzf options
 - [ ] Custom keybindings for builtin picker
 - [ ] Themes
