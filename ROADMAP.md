@@ -18,6 +18,11 @@
 - [ ] Command history tracking
 - [ ] Favorite/pinned commands
 
+### Output
+- [ ] `--save-output` flag to save command output to file
+- [ ] Auto-save output to `~/.config/framed/logs/`
+- [ ] Handle pagers/TUI programs (less, vim, htop, etc.) - needs research
+
 ### UI/UX
 - [ ] Preview pane in fzf showing full command details
 - [ ] Color-coded output (stdout vs stderr)
