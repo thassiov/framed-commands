@@ -64,7 +64,7 @@ func pickWithFzf(commands []*command.Command) (*command.Command, error) {
 		"--prompt=command> ",
 		"--delimiter=\t",
 		"--with-nth=2..", // Display from field 2 onwards (hide ID)
-		"--nth=2,3,4",    // Search category, name, description
+		"--nth=1,2,3,4",  // Search category, name, description
 	)
 
 	fzf.Stderr = os.Stderr

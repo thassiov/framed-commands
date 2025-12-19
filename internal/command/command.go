@@ -28,15 +28,21 @@ type Output struct {
 	Time    time.Time
 }
 
+// PlaceholderConfig defines options for a placeholder
+type PlaceholderConfig struct {
+	Source string `json:"source,omitempty" yaml:"source,omitempty"` // command to run for options
+}
+
 // Descriptor defines a command from config
 type Descriptor struct {
-	Name        string   `json:"name" yaml:"name"`
-	Command     string   `json:"command" yaml:"command"`
-	Args        []string `json:"args,omitempty" yaml:"args,omitempty"`
-	Description string   `json:"description,omitempty" yaml:"description,omitempty"`
-	WorkDir     string   `json:"workdir,omitempty" yaml:"workdir,omitempty"`
-	Alias       string   `json:"alias,omitempty" yaml:"alias,omitempty"`
-	Category    string   `json:"-" yaml:"-"` // derived from source filename
+	Name         string                       `json:"name" yaml:"name"`
+	Command      string                       `json:"command" yaml:"command"`
+	Args         []string                     `json:"args,omitempty" yaml:"args,omitempty"`
+	Description  string                       `json:"description,omitempty" yaml:"description,omitempty"`
+	WorkDir      string                       `json:"workdir,omitempty" yaml:"workdir,omitempty"`
+	Alias        string                       `json:"alias,omitempty" yaml:"alias,omitempty"`
+	Placeholders map[string]PlaceholderConfig `json:"placeholders,omitempty" yaml:"placeholders,omitempty"`
+	Category     string                       `json:"-" yaml:"-"` // derived from source filename
 }
 
 // Command wraps a process with lifecycle management

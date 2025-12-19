@@ -106,6 +106,25 @@ cmdvault start-server 8080 localhost -- --timeout=5000 -v
 # → ./server --port=8080 --host=localhost --timeout=5000 -v
 ```
 
+### Dynamic Placeholder Sources
+
+Instead of typing values, select from a list using fzf:
+
+```yaml
+commands:
+  - name: service status
+    command: systemctl
+    args: ["status", "{{service}}"]
+    placeholders:
+      service:
+        source: "systemctl list-units --type=service --no-legend | awk '{print $1}'"
+```
+
+When you run `cmdvault service-status`, it will:
+1. Run the source command
+2. Pipe output to fzf for selection
+3. Use your selection as the placeholder value
+
 ## Features
 
 **Fuzzy finder integration**

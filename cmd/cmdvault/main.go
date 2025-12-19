@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"os/user"
 	"regexp"
 	"strings"
@@ -127,10 +128,16 @@ func main() {
 		values[placeholders[i]] = val
 	}
 
-	// Prompt for missing placeholders
+	// Prompt for missing placeholders (with source selection if configured)
 	for _, name := range placeholders {
 		if _, ok := values[name]; !ok {
-			values[name] = promptForValue(name)
+			var config *command.PlaceholderConfig
+			if selected.Descriptor.Placeholders != nil {
+				if cfg, exists := selected.Descriptor.Placeholders[name]; exists {
+					config = &cfg
+				}
+			}
+			values[name] = getPlaceholderValue(name, config)
 		}
 	}
 
@@ -250,4 +257,34 @@ func promptForValue(name string) string {
 	fmt.Fprintf(os.Stderr, "%s: ", name)
 	value, _ := reader.ReadString('\n')
 	return strings.TrimSpace(value)
+}
+
+// selectFromSource runs a source command and pipes output to fzf for selection
+func selectFromSource(name, source string) (string, error) {
+	// Run source command and pipe to fzf
+	cmd := exec.Command("sh", "-c", source+" | fzf --height=40% --layout=reverse --border --prompt='"+name+"> '")
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+
+	output, err := cmd.Output()
+	if err != nil {
+		// User cancelled or error
+		return "", err
+	}
+
+	return strings.TrimSpace(string(output)), nil
+}
+
+// getPlaceholderValue gets a value for a placeholder, using source if available
+func getPlaceholderValue(name string, config *command.PlaceholderConfig) string {
+	if config != nil && config.Source != "" {
+		value, err := selectFromSource(name, config.Source)
+		if err != nil {
+			// Fallback to manual prompt if fzf fails
+			fmt.Fprintf(os.Stderr, "Selection cancelled, enter manually.\n")
+			return promptForValue(name)
+		}
+		return value
+	}
+	return promptForValue(name)
 }

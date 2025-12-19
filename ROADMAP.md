@@ -7,6 +7,7 @@
 - [x] Pipeable output (clean stdout when piped, no decorative text)
 - [x] Configurable aliases (`cmdvault my-alias` runs command directly, auto-generated from name)
 - [x] User input parameters (`{{port}}` placeholders, positional args, `--` passthrough)
+- [x] Dynamic placeholder sources (fzf selection from command output)
 - [x] Shell completion scripts (bash and zsh, via `--list-aliases`)
 - [x] Keybinding support (Ctrl+F to launch picker via ZLE widget / bash bind)
 
@@ -23,16 +24,19 @@
 - [ ] Inline command saving (`cmdvault save ls -la` → prompts for name/description)
 - [ ] Command history tracking
 - [ ] Favorite/pinned commands
+- [ ] Sudo handling (detect/prompt for sudo, cache credentials)
 
 ### Output
 - [ ] `--save-output` flag to save command output to file
 - [ ] Auto-save output to `~/.config/cmdvault/logs/`
 - [ ] Handle pagers/TUI programs (less, vim, htop, etc.) - needs research
+- [ ] Preserve color output (PTY allocation for commands like `ls --color`, `exa`)
 
 ### UI/UX
 - [ ] Preview pane in fzf showing full command details
 - [ ] Color-coded output (stdout vs stderr)
 - [ ] Interactive mode (run multiple commands in a session)
+- [ ] Tab/Shift+Tab to cycle through placeholder source lists
 
 ### Configuration
 - [ ] Global config file (`~/.config/cmdvault/config.yaml`)
