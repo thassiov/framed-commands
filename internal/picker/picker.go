@@ -24,7 +24,7 @@ func Pick(commands []*command.Command) (*command.Command, error) {
 func PickSimple(commands []*command.Command) (*command.Command, error) {
 	fmt.Printf("Commands:\n\n")
 	for i, cmd := range commands {
-		fmt.Printf("  [%d] %s\n", i, cmd.Descriptor.Name)
+		fmt.Printf("  [%d] \033[33m[%s]\033[0m %s\n", i, cmd.Descriptor.Category, cmd.Descriptor.Name)
 		if cmd.Descriptor.Description != "" {
 			fmt.Printf("      %s\n", cmd.Descriptor.Description)
 		}
@@ -60,9 +60,11 @@ func pickWithFzf(commands []*command.Command) (*command.Command, error) {
 		"--height=40%",
 		"--layout=reverse",
 		"--border",
+		"--ansi",
 		"--prompt=command> ",
 		"--delimiter=\t",
 		"--with-nth=2..", // Display from field 2 onwards (hide ID)
+		"--nth=2,3,4",    // Search category, name, description
 	)
 
 	fzf.Stderr = os.Stderr
@@ -81,9 +83,15 @@ func pickWithFzf(commands []*command.Command) (*command.Command, error) {
 		return nil, fmt.Errorf("fzf start: %w", err)
 	}
 
-	// Write: ID<tab>Name<tab>Description
+	// Write: ID<tab>Category<tab>Name<tab>Description
+	// Colors: category=yellow, name=cyan+bold, description=gray
 	for _, cmd := range commands {
-		line := fmt.Sprintf("%s\t%s\t%s", cmd.ID, cmd.Descriptor.Name, cmd.Descriptor.Description)
+		line := fmt.Sprintf("%s\t\033[33m[%s]\033[0m\t\033[1;36m%s\033[0m\t\033[90m%s\033[0m",
+			cmd.ID,
+			cmd.Descriptor.Category,
+			cmd.Descriptor.Name,
+			cmd.Descriptor.Description,
+		)
 		fmt.Fprintln(stdin, line)
 	}
 	stdin.Close()
@@ -119,7 +127,8 @@ func pickWithBuiltin(commands []*command.Command) (*command.Command, error) {
 	idx, err := fuzzyfinder.Find(
 		commands,
 		func(i int) string {
-			return commands[i].Descriptor.Name
+			cmd := commands[i]
+			return fmt.Sprintf("[%s] %s", cmd.Descriptor.Category, cmd.Descriptor.Name)
 		},
 		fuzzyfinder.WithPreviewWindow(func(i, w, h int) string {
 			if i == -1 {
@@ -127,7 +136,8 @@ func pickWithBuiltin(commands []*command.Command) (*command.Command, error) {
 			}
 			cmd := commands[i]
 			return fmt.Sprintf(
-				"Name: %s\nCommand: %s %s\n\n%s",
+				"Category: %s\nName: %s\nCommand: %s %s\n\n%s",
+				cmd.Descriptor.Category,
 				cmd.Descriptor.Name,
 				cmd.Descriptor.Command,
 				strings.Join(cmd.Descriptor.Args, " "),

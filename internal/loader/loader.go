@@ -59,11 +59,15 @@ func (l *Loader) LoadFile(path string) ([]command.Descriptor, error) {
 		return nil, fmt.Errorf("parse yaml %s: %w", path, err)
 	}
 
-	// Tag each command with its source file for debugging
+	// Derive category from filename (e.g., "git.yaml" → "git")
+	category := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+
+	// Tag each command with its source file and category
 	for i := range cf.Commands {
 		if cf.Commands[i].Name == "" {
 			cf.Commands[i].Name = fmt.Sprintf("%s#%d", filepath.Base(path), i)
 		}
+		cf.Commands[i].Category = category
 	}
 
 	return cf.Commands, nil

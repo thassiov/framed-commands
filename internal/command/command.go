@@ -35,6 +35,7 @@ type Descriptor struct {
 	Args        []string `json:"args,omitempty" yaml:"args,omitempty"`
 	Description string   `json:"description,omitempty" yaml:"description,omitempty"`
 	WorkDir     string   `json:"workdir,omitempty" yaml:"workdir,omitempty"`
+	Category    string   `json:"-" yaml:"-"` // derived from source filename
 }
 
 // Command wraps a process with lifecycle management
