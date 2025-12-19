@@ -1,13 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"os"
 	"os/user"
+	"regexp"
 	"strings"
 	"time"
+
+	"golang.org/x/term"
 
 	"github.com/thassiov/cmdvault/internal/command"
 	"github.com/thassiov/cmdvault/internal/history"
@@ -63,26 +67,77 @@ func main() {
 	orch := orchestrator.New()
 	orch.LoadFromDescriptors(commands)
 
-	cmdList := orch.List()
-
 	var selected *command.Command
-	if *simple {
-		selected, err = picker.PickSimple(cmdList)
+	var cliArgs []string // args after alias (for placeholders and passthrough)
+
+	// Check if an alias was provided as positional argument
+	if alias := flag.Arg(0); alias != "" {
+		selected = orch.FindByAlias(alias)
+		if selected == nil {
+			fmt.Fprintf(os.Stderr, "error: unknown alias %q\n", alias)
+			os.Exit(1)
+		}
+		// Collect remaining args after alias
+		cliArgs = flag.Args()[1:]
 	} else {
-		selected, err = picker.Pick(cmdList)
+		// No alias provided, use picker
+		cmdList := orch.List()
+
+		if *simple {
+			selected, err = picker.PickSimple(cmdList)
+		} else {
+			selected, err = picker.Pick(cmdList)
+		}
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+
+		if selected == nil {
+			os.Exit(0)
+		}
 	}
 
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+	// Process placeholders and passthrough args
+	placeholderArgs, passthroughArgs := splitOnDoubleDash(cliArgs)
+	placeholders := extractPlaceholders(selected.Descriptor.Args)
+
+	// Check for too many positional args
+	if len(placeholderArgs) > len(placeholders) {
+		fmt.Fprintf(os.Stderr, "error: expected %d argument(s) but got %d\n", len(placeholders), len(placeholderArgs))
+		if len(passthroughArgs) == 0 {
+			fmt.Fprintf(os.Stderr, "hint: use -- to pass extra arguments to the command (e.g., cmdvault %s arg1 -- --extra-flag)\n", selected.Descriptor.Alias)
+		}
 		os.Exit(1)
 	}
 
-	if selected == nil {
-		os.Exit(0)
+	// Build values map from positional args
+	values := make(map[string]string)
+	for i, val := range placeholderArgs {
+		values[placeholders[i]] = val
 	}
 
-	fmt.Printf("\nRunning: %s %v\n", selected.Descriptor.Command, selected.Descriptor.Args)
-	fmt.Println(strings.Repeat("-", 40))
+	// Prompt for missing placeholders
+	for _, name := range placeholders {
+		if _, ok := values[name]; !ok {
+			values[name] = promptForValue(name)
+		}
+	}
+
+	// Fill placeholders and append passthrough args
+	finalArgs := fillPlaceholders(selected.Descriptor.Args, values)
+	finalArgs = append(finalArgs, passthroughArgs...)
+
+	// Update the command's args with the processed ones
+	selected.Descriptor.Args = finalArgs
+
+	isTTY := term.IsTerminal(int(os.Stdout.Fd()))
+
+	if isTTY {
+		fmt.Printf("\nRunning: %s %v\n", selected.Descriptor.Command, selected.Descriptor.Args)
+		fmt.Println(strings.Repeat("-", 40))
+	}
 
 	startTime := time.Now()
 
@@ -97,8 +152,10 @@ func main() {
 
 	duration := time.Since(startTime)
 
-	fmt.Println(strings.Repeat("-", 40))
-	fmt.Printf("Exit code: %d\n", *selected.ExitCode)
+	if isTTY {
+		fmt.Println(strings.Repeat("-", 40))
+		fmt.Printf("Exit code: %d\n", *selected.ExitCode)
+	}
 
 	// Log execution to history
 	logExecution(selected, startTime, duration)
@@ -130,4 +187,58 @@ func logExecution(cmd *command.Command, startTime time.Time, duration time.Durat
 	}
 
 	hist.Log(entry)
+}
+
+var placeholderRegex = regexp.MustCompile(`\{\{(\w+)\}\}`)
+
+// extractPlaceholders finds all {{name}} placeholders in args, returns unique names in order
+func extractPlaceholders(args []string) []string {
+	seen := make(map[string]bool)
+	var placeholders []string
+
+	for _, arg := range args {
+		matches := placeholderRegex.FindAllStringSubmatch(arg, -1)
+		for _, match := range matches {
+			name := match[1]
+			if !seen[name] {
+				seen[name] = true
+				placeholders = append(placeholders, name)
+			}
+		}
+	}
+
+	return placeholders
+}
+
+// splitOnDoubleDash splits args into before and after "--"
+func splitOnDoubleDash(args []string) (before, after []string) {
+	for i, arg := range args {
+		if arg == "--" {
+			return args[:i], args[i+1:]
+		}
+	}
+	return args, nil
+}
+
+// fillPlaceholders replaces {{name}} with values from the map
+func fillPlaceholders(args []string, values map[string]string) []string {
+	result := make([]string, len(args))
+	for i, arg := range args {
+		result[i] = placeholderRegex.ReplaceAllStringFunc(arg, func(match string) string {
+			name := placeholderRegex.FindStringSubmatch(match)[1]
+			if val, ok := values[name]; ok {
+				return val
+			}
+			return match
+		})
+	}
+	return result
+}
+
+// promptForValue prompts the user to enter a value for the placeholder
+func promptForValue(name string) string {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Fprintf(os.Stderr, "%s: ", name)
+	value, _ := reader.ReadString('\n')
+	return strings.TrimSpace(value)
 }

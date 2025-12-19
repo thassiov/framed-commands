@@ -1,5 +1,13 @@
 # Roadmap
 
+## Completed
+
+- [x] Command groups/categories (derived from filename, searchable in fzf)
+- [x] Color-coded picker display (category, name, description)
+- [x] Pipeable output (clean stdout when piped, no decorative text)
+- [x] Configurable aliases (`cmdvault my-alias` runs command directly, auto-generated from name)
+- [x] User input parameters (`{{port}}` placeholders, positional args, `--` passthrough)
+
 ## Planned
 
 ### Shell Integration
@@ -14,8 +22,6 @@
 
 ### Commands
 - [ ] Inline command saving (`cmdvault save ls -la` → prompts for name/description)
-- [ ] User input parameters (prompt for values at runtime)
-- [ ] Command groups/categories
 - [ ] Command history tracking
 - [ ] Favorite/pinned commands
 

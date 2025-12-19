@@ -32,6 +32,10 @@ cmdvault -f ~/commands/
 
 # Use simple numbered list instead of fuzzy finder
 cmdvault --simple
+
+# Run a command directly by alias (skips picker)
+cmdvault list-containers
+cmdvault prune-system
 ```
 
 On first run, cmdvault will offer to create the config directory if it doesn't exist.
@@ -71,6 +75,36 @@ commands:
 | `args` | no | List of arguments |
 | `description` | no | Shown in picker and preview |
 | `workdir` | no | Working directory for the command |
+| `alias` | no | Short name for direct execution (auto-generated from name if not set) |
+
+### Placeholders
+
+Use `{{name}}` placeholders for dynamic arguments:
+
+```yaml
+commands:
+  - name: start server
+    command: ./server
+    args: ["--port={{port}}", "--host={{host}}"]
+```
+
+```bash
+# Provide values positionally (in order of appearance)
+cmdvault start-server 8080 localhost
+# → ./server --port=8080 --host=localhost
+
+# Partial values - prompts for the rest
+cmdvault start-server 8080
+# → prompts for "host:", then runs
+
+# No values - prompts for all
+cmdvault start-server
+# → prompts for "port:", then "host:"
+
+# Pass extra args to the underlying command with --
+cmdvault start-server 8080 localhost -- --timeout=5000 -v
+# → ./server --port=8080 --host=localhost --timeout=5000 -v
+```
 
 ## Features
 
@@ -85,6 +119,10 @@ commands:
 **Multiple command files**
 - Organize commands by topic (docker.yaml, k8s.yaml, git.yaml)
 - All files in the commands directory are loaded together
+
+**Pipeable output**
+- When piped, cmdvault outputs only the command's stdout (no decorations)
+- `cmdvault my-cmd | grep foo` works as expected
 
 ## Examples
 

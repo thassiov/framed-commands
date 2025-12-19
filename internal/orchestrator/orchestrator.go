@@ -119,3 +119,16 @@ func (o *Orchestrator) LoadFromDescriptors(descriptors []command.Descriptor) {
 		o.Add(desc)
 	}
 }
+
+// FindByAlias returns a command by its alias
+func (o *Orchestrator) FindByAlias(alias string) *command.Command {
+	o.mu.RLock()
+	defer o.mu.RUnlock()
+
+	for _, cmd := range o.commands {
+		if cmd.Descriptor.Alias == alias {
+			return cmd
+		}
+	}
+	return nil
+}

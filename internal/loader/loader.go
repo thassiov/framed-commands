@@ -62,12 +62,15 @@ func (l *Loader) LoadFile(path string) ([]command.Descriptor, error) {
 	// Derive category from filename (e.g., "git.yaml" → "git")
 	category := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 
-	// Tag each command with its source file and category
+	// Tag each command with its source file, category, and auto-generate alias if needed
 	for i := range cf.Commands {
 		if cf.Commands[i].Name == "" {
 			cf.Commands[i].Name = fmt.Sprintf("%s#%d", filepath.Base(path), i)
 		}
 		cf.Commands[i].Category = category
+		if cf.Commands[i].Alias == "" {
+			cf.Commands[i].Alias = generateAlias(cf.Commands[i].Name)
+		}
 	}
 
 	return cf.Commands, nil
@@ -190,4 +193,10 @@ func (l *Loader) GetCommandsDir() string {
 func isYAMLFile(name string) bool {
 	lower := strings.ToLower(name)
 	return strings.HasSuffix(lower, ".yaml") || strings.HasSuffix(lower, ".yml")
+}
+
+// generateAlias creates an alias from a name by lowercasing and joining with dashes
+// "List Containers" → "list-containers"
+func generateAlias(name string) string {
+	return strings.ToLower(strings.ReplaceAll(strings.TrimSpace(name), " ", "-"))
 }
