@@ -1,0 +1,24 @@
+name: Docker Commands
+description: Common docker operations
+
+commands:
+  - name: list containers
+    command: docker
+    args: ["ps", "-a"]
+    description: Show all containers including stopped ones
+
+  - name: list images
+    command: docker
+    args: ["images"]
+    description: Show all local images
+
+  - name: prune system
+    command: docker
+    args: ["system", "prune", "-f"]
+    description: Remove unused containers, networks, and images
+
+  - name: compose up
+    command: docker
+    args: ["compose", "up", "-d"]
+    description: Start services in detached mode
+    workdir: /path/to/project
