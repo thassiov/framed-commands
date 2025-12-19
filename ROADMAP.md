@@ -13,6 +13,7 @@
 - [ ] Fish integration (`shell/cmdvault.fish`)
 
 ### Commands
+- [ ] Inline command saving (`cmdvault save ls -la` → prompts for name/description)
 - [ ] User input parameters (prompt for values at runtime)
 - [ ] Command groups/categories
 - [ ] Command history tracking
