@@ -39,13 +39,13 @@ func main() {
 			os.Exit(0)
 		}
 
-		if err := l.EnsureDefaultDirs(); err != nil {
+		if err := l.EnsureDefaultDirsWithExamples(); err != nil {
 			fmt.Fprintf(os.Stderr, "error creating directory: %v\n", err)
 			os.Exit(1)
 		}
 
 		fmt.Printf("Created %s\n", l.GetCommandsDir())
-		fmt.Println("Add your command files (.yaml) to this directory and run again.")
+		fmt.Println("Added example command files. Run again to get started.")
 		os.Exit(0)
 	}
 
