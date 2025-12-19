@@ -11,8 +11,14 @@ import (
 //go:embed examples/*.yaml
 var exampleFiles embed.FS
 
-// CopyExamples copies the embedded example files to the commands directory
+// CopyExamples copies the embedded example files to commands/examples/
 func (l *Loader) CopyExamples() error {
+	examplesDir := filepath.Join(l.commandsDir, "examples")
+
+	if err := os.MkdirAll(examplesDir, 0755); err != nil {
+		return fmt.Errorf("create examples dir: %w", err)
+	}
+
 	entries, err := exampleFiles.ReadDir("examples")
 	if err != nil {
 		return fmt.Errorf("read embedded examples: %w", err)
@@ -24,7 +30,7 @@ func (l *Loader) CopyExamples() error {
 		}
 
 		srcPath := "examples/" + entry.Name()
-		dstPath := filepath.Join(l.commandsDir, entry.Name())
+		dstPath := filepath.Join(examplesDir, entry.Name())
 
 		// Don't overwrite existing files
 		if _, err := os.Stat(dstPath); err == nil {

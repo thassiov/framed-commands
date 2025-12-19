@@ -69,12 +69,12 @@ func (l *Loader) LoadFile(path string) ([]command.Descriptor, error) {
 	return cf.Commands, nil
 }
 
-// LoadDir loads all YAML files from the commands directory
+// LoadDir loads all YAML files from the commands directory recursively
 func (l *Loader) LoadDir() ([]command.Descriptor, error) {
-	return l.LoadDirFrom(l.commandsDir)
+	return l.LoadDirRecursive(l.commandsDir)
 }
 
-// LoadDirFrom loads all YAML files from a specific directory
+// LoadDirFrom loads YAML files from first level of a directory (for custom paths)
 func (l *Loader) LoadDirFrom(dir string) ([]command.Descriptor, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -91,20 +91,56 @@ func (l *Loader) LoadDirFrom(dir string) ([]command.Descriptor, error) {
 			continue
 		}
 
-		name := entry.Name()
-		if !isYAMLFile(name) {
+		if !isYAMLFile(entry.Name()) {
 			continue
 		}
 
-		path := filepath.Join(dir, name)
+		path := filepath.Join(dir, entry.Name())
 		commands, err := l.LoadFile(path)
 		if err != nil {
-			// Log warning but continue loading other files
 			fmt.Fprintf(os.Stderr, "warning: failed to load %s: %v\n", path, err)
 			continue
 		}
 
 		allCommands = append(allCommands, commands...)
+	}
+
+	return allCommands, nil
+}
+
+// LoadDirRecursive loads all YAML files from a directory recursively (for default dir)
+func (l *Loader) LoadDirRecursive(dir string) ([]command.Descriptor, error) {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		return nil, fmt.Errorf("commands directory does not exist: %s", dir)
+	}
+
+	var allCommands []command.Descriptor
+
+	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		if !isYAMLFile(d.Name()) {
+			return nil
+		}
+
+		commands, err := l.LoadFile(path)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: failed to load %s: %v\n", path, err)
+			return nil
+		}
+
+		allCommands = append(allCommands, commands...)
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("walk dir %s: %w", dir, err)
 	}
 
 	return allCommands, nil
