@@ -1,251 +1,94 @@
-<div align="center">
-  <img src="tuizer-demo.gif">
-  <h5>Make a TUI app using a config file</h5>
-</div>
+# cmdvault
 
-# tuizer
+A command-line tool to store, organize, and quickly run your frequently used commands.
+
+Instead of memorizing complex CLI commands or cluttering your shell config with aliases, define them in YAML files and access them through a fuzzy finder.
 
 ## Install
 
 ```bash
-npm install -g tuizer
+go install github.com/thassiov/cmdvault/cmd/cmdvault@latest
 ```
 
-## What is does
-
-From a config file, it creates a menu where you can execute commands. A small description of the command is also shown, if provided.
-
-<details><summary>Why (the motivation behind it)</summary>
-
-I don't remember all the possible commands from an application and I didn't wanted to keep trying to dig through documentation to find the correct combination of options to do a certain operation. Also I didn't want to created a lot of custom scripts to do those things, like having a script that does `ls -la` alone, for instance.
-
-If I find a command that I want to use, but don't do it very often and don't want to lose it, or I want to study some application, like terraform or some other thing that has a bunch of different commands, I would want something like this available: feed a json file with the stuff you don't want to lose (commands and their descriptions) and the app will create a little menu for you.
-
-</details>
-
-## How it works
-
-`tuizer` can be fed a JSON or YAML file directly or, if no file is provided, it searches for the `$HOME/.tuizer` directory for files.
+Or build from source:
 
 ```bash
-# the '.json' extension is optional if the format is json
-tuizer ./some-json-file.json
-tuizer ./some-json-file
-
-or
-
-# the '.yaml' or '.yml' extension is required if the format is yaml
-tuizer ./some-yaml-file.yaml
-
-# or
-
-# this will launch a selection menu with the `$HOME/.tuizer`'s content
-tuizer
-
+git clone https://github.com/thassiov/cmdvault
+cd cmdvault
+go build -o cmdvault ./cmd/framed
 ```
 
-Make sure to create the `$HOME/.tuizer` directory and put your configs there if you don't want to provide them as argument everytime.
+## Usage
 
-## The config file
+```bash
+# Run with default directory (~/.config/framed/commands/)
+cmdvault
 
-As mentioned, the config can be both a JSON or a YAML file.
-The description here only mentions JSON, but an alternative doc will be written later with the YAML structure. At the end of this doc there are a JSON file example and a YAML file example converted from JSON using [json formatter](https://jsonformatter.org/).
+# Run with a specific file
+cmdvault -f ~/my-commands.yaml
 
-### The base structure
+# Run with a specific directory
+cmdvault -f ~/commands/
 
-```json
-{
-  "name": "These are the commands I am learning",
-  "commands": [<command_structure>]
-}
+# Use simple numbered list instead of fuzzy finder
+cmdvault --simple
 ```
 
-The base structure only has 2 properties, one of them optional:
+On first run, cmdvault will offer to create the config directory if it doesn't exist.
 
-|name |type  |required |
---- | --- | ---
-|`name`|string|no|
-|`commands`|array of `comand`|yes|
+## Defining Commands
 
-
-### The `command` structure
-
-```json
-{
-  "command": "some_command",
-  "parameters": [<parameters_structure>],
-  "description": "the command's description",
-  "nameAlias": "an alias to show in the menu instead of the command (because it might be big)"
-},
-```
-
-|name |type  |required |
---- | --- | ---
-|`comand`|string|yes|
-|`parameters`|array of `parameters`|yes|
-|`description`|string|yes|
-|`nameAlias`|string|yes|
-
-### The `parameters` structure
-
-The `parameters` property can receive two types of elements: `strings` and `input object` structures.
-
-#### The `input object` structure
-
-The idea behind the structure is that there might be commands that need user input to *set parameters*.
-This *does not* enable the user to interact with the application run by `tuizer`, but only set the parameters for it to run.
-
-```json
-{
-  "type":"string",
-  "required":true,
-  "parameter":"",
-  "question":"Enter the cluster's name",
-  "defaultValue": "myCluster"
-}
-```
-
-|name |type  |required |description |
---- | --- | --- | ---
-|`type`|only `string` for now|yes|the type of the input|
-|`required`|`boolean`|no|input is obligatory|
-|`parameter`|`string`|yes|more info in the next section|
-|`question`|`string`|yes|the sentence that will appear in the form for this parameter|
-|`defaultValue`|`string`|no|if the user does not input anything, this value will be used|
-
-Right now we only have `string` as a type, but in the future there will be `select`, `date`, maybe a `multiSelect`, who knows...😬
-
-##### The `parameter` property
-
-There are two ways to set this property:
-
-- leaving it blank and the parameter will be replaced by the answer given in the form, or
-- putting a string with a unescaped `$` in the middle that will be replaced by the answer
-
-The idea of the `$` character is that sometimes the information is in the middle of the string, so if you have a parameter like `--file log.<number>.txt` and you want to change the `<number>` part, you would write it as `--file log.$.txt` in the `parameter` field. The answer given in the form will replace the `$` character.
-
-## Example of a JSON file
-
-Here's how it looks like with all the structures in place (json taken from the project's `example` directory)
-
-```json
-{
-  "name":"K3D Kubernetes",
-  "commands": [
-    {
-      "command":"k3d",
-      "parameters": [
-        "cluster",
-        "list"
-      ],
-      "description":"Lists all k3d clusters",
-      "nameAlias":"list clusters"
-    },
-    {
-      "command":"k3d",
-      "parameters": [
-        "cluster",
-        "start",
-        {
-          "type":"string",
-          "required":true,
-          "parameter":"",
-          "question":"Enter the cluster's name",
-          "defaultValue": "myCluster"
-        }
-      ],
-      "description":"Starts a named cluster (user input or 'my-cluster' by default)",
-      "nameAlias":"starts a named cluster"
-    },
-    {
-      "command":"k3d",
-      "parameters": [
-        "node",
-        "create",
-        {
-          "type":"string",
-          "required":true,
-          "parameter":"",
-          "question":"Enter the worker node's name",
-          "defaultValue": "myWorker"
-        },
-        "--replicas",
-        {
-          "type":"string",
-          "required":true,
-          "parameter":"",
-          "question":"Enter the number of replicas of worker nodes",
-          "defaultValue": "2"
-        },
-        "--cluster",
-        {
-          "type":"string",
-          "required":true,
-          "parameter":"",
-          "question":"Enter the cluster's name",
-          "defaultValue": "myCluster"
-        }
-      ],
-      "description":"Adds a number of worker nodes (user input or 2 by default) with a given name (user input or 'myWorker' by default) in a named cluster (user input or 'myCluster' by default)",
-      "nameAlias":"adds N named workers in a named cluster"
-    }
-  ]
-}
-```
-
-## Example of a YAML file (the same JSON, but converted using [json formatter](https://jsonformatter.org/)).
+Create YAML files in `~/.config/framed/commands/` (or specify with `-f`):
 
 ```yaml
-name: K3D Kubernetes
+name: Docker Commands
+description: Common docker operations
+
 commands:
-  - command: k3d
-    parameters:
-      - cluster
-      - list
-    description: Lists all k3d clusters
-    nameAlias: list clusters
-  - command: k3d
-    parameters:
-      - cluster
-      - start
-      - type: string
-        required: true
-        parameter: ''
-        question: Enter the cluster's name
-        defaultValue: myCluster
-    description: Starts a named cluster (user input or 'my-cluster' by default)
-    nameAlias: starts a named cluster
-  - command: k3d
-    parameters:
-      - node
-      - create
-      - type: string
-        required: true
-        parameter: ''
-        question: Enter the worker node's name
-        defaultValue: myWorker
-      - '--replicas'
-      - type: string
-        required: true
-        parameter: ''
-        question: Enter the number of replicas of worker nodes
-        defaultValue: '2'
-      - '--cluster'
-      - type: string
-        required: true
-        parameter: ''
-        question: Enter the cluster's name
-        defaultValue: myCluster
-    description: >-
-      Adds a number of worker nodes (user input or 2 by default) with a given
-      name (user input or 'myWorker' by default) in a named cluster (user input
-      or 'myCluster' by default)
-    nameAlias: adds N named workers in a named cluster
+  - name: list containers
+    command: docker
+    args: ["ps", "-a"]
+    description: Show all containers including stopped ones
+
+  - name: prune system
+    command: docker
+    args: ["system", "prune", "-f"]
+    description: Remove unused containers, networks, and images
+
+  - name: compose up
+    command: docker
+    args: ["compose", "up", "-d"]
+    description: Start services in detached mode
+    workdir: /path/to/project
 ```
 
-## Contributing
+### Command Fields
 
-Send pull requests, idk
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | yes | Display name in the picker |
+| `command` | yes | The binary to execute |
+| `args` | no | List of arguments |
+| `description` | no | Shown in picker and preview |
+| `workdir` | no | Working directory for the command |
+
+## Features
+
+**Fuzzy finder integration**
+- Uses `fzf` if available (respects your fzf config)
+- Falls back to built-in fuzzy finder with preview pane
+
+**Execution history**
+- Logs all runs to `~/.config/framed/history.jsonl`
+- Tracks: timestamp, user, command, exit code, duration
+
+**Multiple command files**
+- Organize commands by topic (docker.yaml, k8s.yaml, git.yaml)
+- All files in the commands directory are loaded together
+
+## Examples
+
+See the `examples/` directory for sample command files.
 
 ## License
 
