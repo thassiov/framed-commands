@@ -21,6 +21,7 @@
 - [ ] Fish integration (`shell/cmdvault.fish`)
 
 ### Commands
+- [ ] Import commands/aliases from shell config files (bashrc, zshrc, etc.)
 - [ ] Inline command saving (`cmdvault save ls -la` → prompts for name/description)
 - [ ] Command history tracking
 - [ ] Favorite/pinned commands
